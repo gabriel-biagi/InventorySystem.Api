@@ -2,7 +2,7 @@
 {
     public interface IInventoryRepository
     {
-        InventoryItem? GetById(int productId);
+        InventoryItem? GetByProductId(int productId);
         void Add(InventoryItem inventoryItem);
         void Update(InventoryItem inventoryItem);
         List<InventoryItem> GetAll();
