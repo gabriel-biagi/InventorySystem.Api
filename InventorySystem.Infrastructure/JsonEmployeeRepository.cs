@@ -2,7 +2,7 @@
 
 namespace InventorySystem.Infrastructure
 {
-    public class JsonEmployeeRepository : IEmployeeRepository
+    public class JsonEmployeeRepository : Domain.IEmployeeRepository
     {
         public Employee? GetByRegistration(int registration)
         {
