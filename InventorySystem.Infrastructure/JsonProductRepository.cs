@@ -1,4 +1,5 @@
 ﻿using InventorySystem.Domain;
+using System.Linq;
 
 namespace InventorySystem.Infrastructure;
 
@@ -7,22 +8,33 @@ public class JsonProductRepository : IProductRepository
     private string _filePath = "Data/products.json";
     public Product? GetById(int id)
     {
-        throw new NotImplementedException();
+        var lista = LoadProductsFromFile();
+        return lista.FirstOrDefault(x => id == x.Id);
     }
 
     public void Add(Product product)
     {
-        throw new NotImplementedException();
+        var lista = LoadProductsFromFile();
+        lista.Add(product);
+        SaveProductsToFile(lista);
     }
 
     public void Update(Product product)
     {
-        throw new NotImplementedException();
+        var lista = LoadProductsFromFile();
+        var indice = lista.FindIndex(x => x.Id == product.Id);
+        if (indice >= 0)
+        {
+            lista[indice] = product;
+        }
+        SaveProductsToFile(lista);
     }
 
     public void Delete(int id)
     {
-        throw new NotImplementedException();
+        var lista = LoadProductsFromFile();
+        lista.RemoveAll(x => x.Id == id);
+        SaveProductsToFile(lista);
     }
 
     public void SaveProductsToFile(List<Product> products)
