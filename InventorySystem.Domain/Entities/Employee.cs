@@ -2,7 +2,7 @@
 
 namespace InventorySystem.Domain
 {
-    public abstract class Employee
+    public class Employee
     {
         public string Name { get; private set; }
         public int Registration { get; private set; }
@@ -10,6 +10,11 @@ namespace InventorySystem.Domain
 
         public Employee(string name, int registration, Role role)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Employee name can't be null or empty");
+            }
+            
             Name = name;
             Registration = registration;
             Role = role;
@@ -17,6 +22,11 @@ namespace InventorySystem.Domain
 
         public void UpdateName(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Invalid employee name");
+            }
+            
             Name = name;
         }
     }

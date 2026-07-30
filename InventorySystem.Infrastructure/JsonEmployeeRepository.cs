@@ -7,14 +7,14 @@ namespace InventorySystem.Infrastructure
         private string _filePath = "Data/employees.json";
         public Employee? GetByRegistration(int registration)
         {
-            var lista = LoadEmployeesFromFile();
-            return lista.FirstOrDefault(x => registration == x.Registration);
+            var list = LoadEmployeesFromFile();
+            return list.FirstOrDefault(x => registration == x.Registration);
         }
         public void Add(Employee employee)
         {
-            var lista = LoadEmployeesFromFile();
-            lista.Add(employee);
-            SaveEmployeesToFile(lista);
+            var list = LoadEmployeesFromFile();
+            list.Add(employee);
+            SaveEmployeesToFile(list);
         }
 
         public void SaveEmployeesToFile(List<Employee> employees)
