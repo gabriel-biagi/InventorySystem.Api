@@ -1,6 +1,6 @@
-﻿
+﻿using InventorySystem.Domain.Entities;
 
-namespace InventorySystem.Domain
+namespace InventorySystem.Domain.Interfaces
 {
     public interface IProductRepository
     {

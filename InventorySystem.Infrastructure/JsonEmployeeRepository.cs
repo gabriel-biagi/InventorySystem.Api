@@ -1,4 +1,5 @@
-﻿using InventorySystem.Domain;
+﻿using InventorySystem.Domain.Entities;
+using InventorySystem.Domain.Interfaces;
 
 namespace InventorySystem.Infrastructure
 {

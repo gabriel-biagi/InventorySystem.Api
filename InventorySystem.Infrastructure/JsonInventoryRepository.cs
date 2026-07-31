@@ -1,4 +1,6 @@
-﻿using InventorySystem.Domain;
+﻿using InventorySystem.Domain.Interfaces;
+using InventorySystem.Domain.Entities;
+using System.Collections.Generic;
 
 namespace InventorySystem.Infrastructure
 {

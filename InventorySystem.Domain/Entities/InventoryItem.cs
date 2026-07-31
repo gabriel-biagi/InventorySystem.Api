@@ -1,4 +1,4 @@
-﻿namespace InventorySystem.Domain
+﻿namespace InventorySystem.Domain.Entities
 {
     public class InventoryItem
     {

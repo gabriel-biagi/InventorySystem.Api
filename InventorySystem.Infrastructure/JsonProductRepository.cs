@@ -1,5 +1,6 @@
-﻿using InventorySystem.Domain;
-using System.Linq;
+﻿using InventorySystem.Domain.Entities;
+using InventorySystem.Domain.Interfaces;
+
 
 namespace InventorySystem.Infrastructure;
 
