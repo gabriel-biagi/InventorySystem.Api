@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace InventorySystem.Domain
 {
@@ -12,15 +8,22 @@ namespace InventorySystem.Domain
         public string Name { get; private set; }
         public UnitType UnitType { get; private set; }
 
-        public Product(string name, int id, UnitType unitType)
+        public Product(string name, UnitType unitType)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Product name cannot be null or empty.");
+            }
             Name = name;
-            Id = id;
             UnitType = unitType;
         }
 
         public void UpdateName(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Product name cannot be null or empty.");
+            }
             Name = name;
         }
     }
