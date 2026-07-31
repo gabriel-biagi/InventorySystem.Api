@@ -16,7 +16,16 @@ namespace InventorySystem.Domain
             }
             
             Name = name;
+
+            if (registration > 0)
+            {
             Registration = registration;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid employee registration");
+            }
+            
             Role = role;
         }
 
