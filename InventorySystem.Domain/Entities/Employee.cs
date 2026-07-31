@@ -4,11 +4,11 @@ namespace InventorySystem.Domain
 {
     public class Employee
     {
-        public string Name { get; private set; }
         public int Registration { get; private set; }
+        public string Name { get; private set; }
         public Role Role { get; private set; }
 
-        public Employee(string name, int registration, Role role)
+        public Employee(string name, Role role)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -16,13 +16,6 @@ namespace InventorySystem.Domain
             }
             
             Name = name;
-
-            if (registration < 1000)
-            { 
-                throw new ArgumentException("Invalid employee registration");
-            }
-            
-            Registration = registration;
             Role = role;
         }
 
