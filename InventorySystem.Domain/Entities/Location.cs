@@ -1,4 +1,4 @@
-﻿namespace InventorySystem.Domain
+﻿namespace InventorySystem.Domain.Entities
 {
     public class Location
     {
@@ -8,6 +8,11 @@
 
         public Location(int column, int shelf, int item)
         {
+            if (column < 1 || shelf < 1 || item < 1)
+            {
+                throw new ArgumentException("Invalid location");
+            }
+            
             Column = column;
             Shelf = shelf;
             Item = item;
