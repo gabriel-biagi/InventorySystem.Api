@@ -1,10 +1,14 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations;
+
 namespace InventorySystem.Domain.Entities
 {
     public class Product
     {
         public int ProductId { get; private set; }
+        
+        [StringLength(80)]
         public string Name { get; private set; }
         public UnitType UnitType { get; private set; }
 
