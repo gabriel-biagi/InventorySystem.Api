@@ -4,7 +4,6 @@ namespace InventorySystem.Domain.Entities
 {
     public class Location
     {
-        [Column(TypeName = "int(10,2)")]
         public int Column { get; private set; }
         public int Shelf { get; private set; }
         public int Item { get; private set; }
