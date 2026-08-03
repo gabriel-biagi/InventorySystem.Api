@@ -10,7 +10,7 @@ public class JsonProductRepository : IProductRepository
     public Product? GetById(int id)
     {
         var lista = LoadProductsFromFile();
-        return lista.FirstOrDefault(x => id == x.Id);
+        return lista.FirstOrDefault(x => id == x.ProductId);
     }
 
     public void Add(Product product)
@@ -23,7 +23,7 @@ public class JsonProductRepository : IProductRepository
     public void Update(Product product)
     {
         var lista = LoadProductsFromFile();
-        var indice = lista.FindIndex(x => x.Id == product.Id);
+        var indice = lista.FindIndex(x => x.ProductId == product.ProductId);
         if (indice >= 0)
         {
             lista[indice] = product;
@@ -34,7 +34,7 @@ public class JsonProductRepository : IProductRepository
     public void Delete(int id)
     {
         var lista = LoadProductsFromFile();
-        lista.RemoveAll(x => x.Id == id);
+        lista.RemoveAll(x => x.ProductId == id);
         SaveProductsToFile(lista);
     }
 

@@ -11,4 +11,14 @@ public class AppDbContext : DbContext
     
     public DbSet<InventoryItem>  InventoryItems { get; set; }
     public DbSet<Product>  Products { get; set; }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Mapeia Location como parte do InventoryItem (Owned Type)
+        modelBuilder.Entity<InventoryItem>(builder =>
+        {
+            builder.OwnsOne(i => i.Location);
+        });
+    }
 }

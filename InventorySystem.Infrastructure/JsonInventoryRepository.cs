@@ -10,7 +10,7 @@ namespace InventorySystem.Infrastructure
         public InventoryItem? GetByProductId(int productId)
         {
             var lista = LoadInventoryFromFile();
-            return lista.FirstOrDefault(x => productId == x.Product.Id);
+            return lista.FirstOrDefault(x => productId == x.Product.ProductId);
         }
         public void Add(InventoryItem inventoryitem)
         {
@@ -21,7 +21,7 @@ namespace InventorySystem.Infrastructure
         public void Update(InventoryItem inventoryItem)
         {
             var lista = LoadInventoryFromFile();
-            var indice = lista.FindIndex(x => inventoryItem.Product.Id == x.Product.Id);
+            var indice = lista.FindIndex(x => inventoryItem.Product.ProductId == x.Product.ProductId);
             if (indice >= 0)
             {
                 lista[indice] = inventoryItem;

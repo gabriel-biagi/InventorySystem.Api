@@ -4,7 +4,7 @@ namespace InventorySystem.Domain.Entities
 {
     public class Product
     {
-        public int Id { get; private set; }
+        public int ProductId { get; private set; }
         public string Name { get; private set; }
         public UnitType UnitType { get; private set; }
 

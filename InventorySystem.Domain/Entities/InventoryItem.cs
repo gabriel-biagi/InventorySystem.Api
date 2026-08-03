@@ -2,9 +2,12 @@
 {
     public class InventoryItem
     {
+        public int InventoryItemId {get; private set;}
         public Product Product { get; private set; }
         public Location Location { get; private set; }
         public decimal Quantity { get; private set; }
+        
+        protected InventoryItem() { }
 
         public InventoryItem(Product product, Location location)
         {
