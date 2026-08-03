@@ -10,21 +10,23 @@ namespace InventorySystem.Domain.Entities
 
         public Product(string name, UnitType unitType)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Product name cannot be null or empty.");
-            }
+            ValidateName(name);
             Name = name;
             UnitType = unitType;
         }
 
         public void UpdateName(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Product name cannot be null or empty.");
-            }
+            ValidateName(name);
             Name = name;
+        }
+        
+        private static void ValidateName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || name.Length < 5)
+            {
+                throw new ArgumentException("The product name must be at least 5 characters long.");
+            }
         }
     }
 }
