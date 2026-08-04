@@ -2,7 +2,7 @@
 
 namespace InventorySystem.Api.Controllers;
 
-public class InventoryItens : ControllerBase
+public class InventoryItensController : ControllerBase
 {
     
 }
