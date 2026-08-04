@@ -37,7 +37,7 @@ namespace InventorySystem.Api;
         }
 
         [HttpPost]
-        public ActionResult<Product> PostProduct(Product product)
+        public ActionResult<Product> PostProduct(Product? product)
         {
             if (product is null)
             {
