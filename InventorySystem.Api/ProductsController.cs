@@ -24,4 +24,15 @@ namespace InventorySystem.Api;
             }
             return products;
         }
+
+        [HttpGet("{id:int}")]
+        public ActionResult<Product> GetProduct(int id)
+        {
+            var product = _context.Products.Find(id);
+            if (product is null)
+            {
+                return NotFound("No product found");
+            }
+            return product;
+        }
     }
