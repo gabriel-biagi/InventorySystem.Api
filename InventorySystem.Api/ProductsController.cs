@@ -25,7 +25,7 @@ namespace InventorySystem.Api;
             return products;
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}", Name = "GetProduct")]
         public ActionResult<Product> GetProduct(int id)
         {
             var product = _context.Products.Find(id);
@@ -35,4 +35,18 @@ namespace InventorySystem.Api;
             }
             return product;
         }
+
+        [HttpPost]
+        public ActionResult<Product> PostProduct(Product product)
+        {
+            if (product is null)
+            {
+                return BadRequest("Product is null");
+            }
+            _context.Products.Add(product);
+            _context.SaveChanges();
+            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
+        }
+
     }
+    
