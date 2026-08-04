@@ -3,7 +3,7 @@ using InventorySystem.Infrastructure.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace InventorySystem.Api;
+namespace InventorySystem.Api.Controllers;
     [Route("[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
