@@ -13,7 +13,7 @@ InventorySystem/
 ├── InventorySystem.Api           → Endpoints HTTP, Controllers, configuração
 ├── InventorySystem.Application   → Casos de uso, lógica de aplicação, DTOs
 ├── InventorySystem.Domain        → Entidades, enums, interfaces de repositório
-└── InventorySystem.Infrastructure → Implementações de persistência (JSON → futuramente EF Core)
+└── InventorySystem.Infrastructure → Implementações de persistência (EF Core + MySQL)
 ```
 
 ---
@@ -23,7 +23,7 @@ InventorySystem/
 **Entidades:**
 - `Product` — produto com nome, ID e tipo de unidade; validação no construtor
 - `InventoryItem` — item de estoque com produto, localização e quantidade
-- `Location` — posição física no almoxarifado (coluna, prateleira, item); validação de coordenadas
+- `Location` — posição física no almoxarifado (coluna, prateleira, item); validação de coordenadas; mapeada como Owned Type do EF Core
 - `Employee` — funcionário com nome, matrícula e cargo; validação no construtor
 
 **Enums:**
@@ -37,33 +37,54 @@ InventorySystem/
 
 ---
 
-## Infraestrutura
-
-Implementações JSON provisórias enquanto Entity Framework Core não é integrado:
-
-- `JsonProductRepository`
-- `JsonInventoryRepository`
-- `JsonEmployeeRepository`
-
----
-
 ## Stack
 
 - C# / .NET 8
 - ASP.NET Core Web API
-- `System.Text.Json` (persistência provisória)
+- Entity Framework Core + MySQL
+- Swagger / OpenAPI
 - Git / GitHub
+
+---
+
+## Endpoints disponíveis
+
+**Products**
+- `GET /products` — lista todos os produtos
+- `GET /products/{id}` — busca produto por ID
+- `POST /products` — cadastra produto
+- `PUT /products/{id}` — atualiza nome do produto
+- `DELETE /products/{id}` — remove produto
+
+---
+
+## Como rodar
+
+```bash
+git clone https://github.com/gabriel-biagi/InventorySystem
+cd InventorySystem
+dotnet ef database update --project InventorySystem.Infrastructure --startup-project InventorySystem.Api
+dotnet run --project InventorySystem.Api
+```
+
+Configure a connection string via User Secrets no projeto `InventorySystem.Api`.
 
 ---
 
 ## Status
 
-Em desenvolvimento. Camada de Application e Controllers ainda não implementados.
+Em desenvolvimento ativo.
+
+**Concluído:**
+- ✅ Domínio com entidades e validações
+- ✅ Entity Framework Core com MySQL
+- ✅ Migrations e seed de dados iniciais
+- ✅ ProductsController com CRUD completo
 
 **Próximos passos:**
-- Implementar Controllers e endpoints REST
-- Adicionar camada Application com casos de uso
-- Integrar Entity Framework Core + SQL Server
+- Repository Pattern e separação de responsabilidades
+- Camada Application com Services
+- DTOs com AutoMapper
+- InventoryItems endpoints
 - Autenticação JWT com controle de acesso por cargo
-- Documentação via Swagger
 - Testes unitários com xUnit
