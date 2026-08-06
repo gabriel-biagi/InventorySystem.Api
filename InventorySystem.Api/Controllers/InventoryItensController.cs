@@ -60,7 +60,7 @@ public class InventoryItensController : ControllerBase
         return inventoryItem;
     }
 
-    [HttpPut("/inventoryitens/{id}/add-quantity")]
+    [HttpPut("{id}/add-quantity")]
     public ActionResult<InventoryItem> PutInventoryItem(int id, decimal quantity)
     {
         var inventoryItem = _context.InventoryItems
@@ -82,7 +82,7 @@ public class InventoryItensController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("/inventoryitens/{id}/remove-quantity")]
+    [HttpPut("{id}/remove-quantity")]
     public ActionResult<InventoryItem> RemoveInventoryItem(int id, decimal quantity)
     {
         var inventoryItem = _context.InventoryItems
