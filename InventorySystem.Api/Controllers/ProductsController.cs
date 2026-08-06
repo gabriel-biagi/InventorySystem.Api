@@ -26,7 +26,7 @@ namespace InventorySystem.Api.Controllers;
             return products;
         }
 
-        [HttpGet("{id:int}", Name = "GetProduct")]
+        [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
         public ActionResult<Product> GetProduct(int id)
         {
             var product = _context.Products.Find(id);
@@ -49,7 +49,7 @@ namespace InventorySystem.Api.Controllers;
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int:min(1)}")]
         public ActionResult DeleteProduct(int id)
         {
             var rowsafected = _context.Products
@@ -62,7 +62,7 @@ namespace InventorySystem.Api.Controllers;
             return NoContent();
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int:min(1)}")]
         public ActionResult<Product> PutProduct(int id, string name)
         {
             var product =  _context.Products.Find(id);

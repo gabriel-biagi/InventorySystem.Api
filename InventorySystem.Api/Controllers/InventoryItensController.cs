@@ -29,7 +29,7 @@ public class InventoryItensController : ControllerBase
         return itens;
     }
 
-    [HttpPost("products/{productId:int}")]
+    [HttpPost("products/{productId:int:min(1)}")]
     public ActionResult<InventoryItem> PostInventoryItem(int productId, [FromBody] InventoryItemRequest request)
     {
         var product = _context.Products.Find(productId);
@@ -47,7 +47,7 @@ public class InventoryItensController : ControllerBase
         return CreatedAtAction(nameof(PostInventoryItem), new { id = inventoryItem.InventoryItemId }, inventoryItem);
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int:min(1)}")]
     public ActionResult<InventoryItem> GetInventoryItem(int id)
     {
         var inventoryItem = _context.InventoryItems
@@ -60,7 +60,7 @@ public class InventoryItensController : ControllerBase
         return inventoryItem;
     }
 
-    [HttpPut("{id}/add-quantity")]
+    [HttpPut("{id:int:min(1)}/add-quantity")]
     public ActionResult<InventoryItem> PutInventoryItem(int id, decimal quantity)
     {
         var inventoryItem = _context.InventoryItems
@@ -82,7 +82,7 @@ public class InventoryItensController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("{id}/remove-quantity")]
+    [HttpPut("{id:int:min(1)}/remove-quantity")]
     public ActionResult<InventoryItem> RemoveInventoryItem(int id, decimal quantity)
     {
         var inventoryItem = _context.InventoryItems
@@ -104,7 +104,7 @@ public class InventoryItensController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:int:min(1)}")]
     public ActionResult<InventoryItem> DeleteInventoryItem(int id)
     {
         var rowsafected = _context.InventoryItems
