@@ -80,7 +80,42 @@ public class InventoryItensController : ControllerBase
         }
         _context.SaveChanges();
         return NoContent();
-        
+    }
+
+    [HttpPut("/inventoryitens/{id}/remove-quantity")]
+    public ActionResult<InventoryItem> RemoveInventoryItem(int id, decimal quantity)
+    {
+        var inventoryItem = _context.InventoryItems
+            .Find(id);
+        if (inventoryItem is null)
+        {
+            return NotFound("No products found");
+        }
+
+        try
+        {
+            inventoryItem.RemoveQuantity(quantity);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        _context.SaveChanges();
+        return NoContent();
+    }
+
+    [HttpDelete("{id:int}")]
+    public ActionResult<InventoryItem> DeleteInventoryItem(int id)
+    {
+        var rowsafected = _context.InventoryItems
+            .Where(b => b.InventoryItemId == id)
+            .ExecuteDelete();
+
+        if (rowsafected == 0)
+        {
+            return NotFound("No products found");
+        }
+        return NoContent();
     }
 }
 public class InventoryItemRequest
