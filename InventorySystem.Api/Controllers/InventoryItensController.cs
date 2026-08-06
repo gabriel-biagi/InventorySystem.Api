@@ -1,6 +1,7 @@
 ﻿using InventorySystem.Domain.Entities;
 using InventorySystem.Infrastructure.Context;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace InventorySystem.Api.Controllers;
@@ -19,7 +20,8 @@ public class InventoryItensController : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<InventoryItem>> GetInventoryItems()
     {
-        var itens = _context.InventoryItems.ToList();
+        var itens = _context.InventoryItems.Include(b => b.Product)
+            .ToList();
         if (itens.Count == 0)
         {
             return NotFound("No products found");
