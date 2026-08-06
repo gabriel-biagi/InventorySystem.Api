@@ -59,6 +59,29 @@ public class InventoryItensController : ControllerBase
         }
         return inventoryItem;
     }
+
+    [HttpPut("/inventoryitens/{id}/add-quantity")]
+    public ActionResult<InventoryItem> PutInventoryItem(int id, decimal quantity)
+    {
+        var inventoryItem = _context.InventoryItems
+            .Find(id);
+        if (inventoryItem is null)
+        {
+            return NotFound("No products found");
+        }
+
+        try
+        {
+            inventoryItem.AddQuantity(quantity);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        _context.SaveChanges();
+        return NoContent();
+        
+    }
 }
 public class InventoryItemRequest
 {
