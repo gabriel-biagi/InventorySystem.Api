@@ -46,6 +46,19 @@ public class InventoryItensController : ControllerBase
 
         return CreatedAtAction(nameof(PostInventoryItem), new { id = inventoryItem.InventoryItemId }, inventoryItem);
     }
+
+    [HttpGet("{id:int}")]
+    public ActionResult<InventoryItem> GetInventoryItem(int id)
+    {
+        var inventoryItem = _context.InventoryItems
+            .Include(b => b.Product)
+            .FirstOrDefault(b => b.InventoryItemId == id);
+        if (inventoryItem is null)
+        {
+            return NotFound("No products found");
+        }
+        return inventoryItem;
+    }
 }
 public class InventoryItemRequest
 {
