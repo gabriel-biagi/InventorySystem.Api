@@ -18,10 +18,10 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<InventoryItem>> GetInventoryItems()
+    public async Task<ActionResult<IEnumerable<InventoryItem>>> GetInventoryItems()
     {
-        var itens = _context.InventoryItems.Include(b => b.Product)
-            .ToList();
+        var itens = await _context.InventoryItems.Include(b => b.Product)
+            .ToListAsync();
         if (itens.Count == 0)
         {
             return NotFound("No products found");
@@ -30,9 +30,9 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpPost("products/{productId:int:min(1)}")]
-    public ActionResult<InventoryItem> PostInventoryItem(int productId, [FromBody] InventoryItemRequest request)
+    public async Task<ActionResult<InventoryItem>> PostInventoryItem(int productId, [FromBody] InventoryItemRequest request)
     {
-        var product = _context.Products.Find(productId);
+        var product = await _context.Products.FindAsync(productId);
         if (product is null)
         {
             return NotFound("No product found");
@@ -42,17 +42,17 @@ public class InventoryItensController : ControllerBase
         var inventoryItem = new InventoryItem(product, location, request.Quantity);
         
         _context.InventoryItems.Add(inventoryItem);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(PostInventoryItem), new { id = inventoryItem.InventoryItemId }, inventoryItem);
     }
 
     [HttpGet("{id:int:min(1)}")]
-    public ActionResult<InventoryItem> GetInventoryItem(int id)
+    public async Task<ActionResult<InventoryItem>> GetInventoryItem(int id)
     {
-        var inventoryItem = _context.InventoryItems
+        var inventoryItem = await _context.InventoryItems
             .Include(b => b.Product)
-            .FirstOrDefault(b => b.InventoryItemId == id);
+            .FirstOrDefaultAsync(b => b.InventoryItemId == id);
         if (inventoryItem is null)
         {
             return NotFound("No products found");
@@ -61,10 +61,10 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpPut("{id:int:min(1)}/add-quantity")]
-    public ActionResult<InventoryItem> PutInventoryItem(int id, decimal quantity)
+    public async Task<ActionResult<InventoryItem>> PutInventoryItem(int id, decimal quantity)
     {
-        var inventoryItem = _context.InventoryItems
-            .Find(id);
+        var inventoryItem = await _context.InventoryItems
+            .FindAsync(id);
         if (inventoryItem is null)
         {
             return NotFound("No products found");
@@ -78,15 +78,15 @@ public class InventoryItensController : ControllerBase
         {
             return BadRequest(e.Message);
         }
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 
     [HttpPut("{id:int:min(1)}/remove-quantity")]
-    public ActionResult<InventoryItem> RemoveInventoryItem(int id, decimal quantity)
+    public async Task<ActionResult<InventoryItem>> RemoveInventoryItem(int id, decimal quantity)
     {
-        var inventoryItem = _context.InventoryItems
-            .Find(id);
+        var inventoryItem = await _context.InventoryItems
+            .FindAsync(id);
         if (inventoryItem is null)
         {
             return NotFound("No products found");
@@ -100,18 +100,18 @@ public class InventoryItensController : ControllerBase
         {
             return BadRequest(e.Message);
         }
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 
     [HttpDelete("{id:int:min(1)}")]
-    public ActionResult<InventoryItem> DeleteInventoryItem(int id)
+    public async Task<ActionResult<InventoryItem>> DeleteInventoryItem(int id)
     {
-        var rowsafected = _context.InventoryItems
+        var affected = await _context.InventoryItems
             .Where(b => b.InventoryItemId == id)
-            .ExecuteDelete();
+            .ExecuteDeleteAsync();
 
-        if (rowsafected == 0)
+        if (affected == 0)
         {
             return NotFound("No products found");
         }
