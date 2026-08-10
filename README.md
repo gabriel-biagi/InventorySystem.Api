@@ -26,6 +26,10 @@ InventorySystem/
 │   ├── Controllers/
 │   │   ├── InventoryItensController.cs
 │   │   └── ProductsController.cs
+│   ├── Extensions/
+│   │   └── ApiExceptionMiddlewareExtensions.cs
+│   ├── Middlewares/
+│   │   └── ErrorDetails.cs
 │   ├── appsettings.json
 │   └── Program.cs
 ├── InventorySystem.Application/
@@ -133,12 +137,12 @@ Em desenvolvimento ativo.
 - ✅ Migrations e seed de dados iniciais (8 produtos de almoxarifado)
 - ✅ ProductsController com CRUD completo
 - ✅ InventoryItemsController com CRUD e endpoints de movimentação de quantidade
+- ✅ Actions assíncronas (`async/await`) em todos os endpoints
+- ✅ Middleware global de tratamento de erros com `ErrorDetails` e ambiente-aware StackTrace
 
 **Próximos passos:**
 - Repository Pattern com injeção de dependência
 - Camada Application com Services
-- Actions assíncronas (`async/await`)
 - DTOs com AutoMapper
-- Middleware de tratamento de erros global
 - Autenticação JWT com controle de acesso por cargo
 - Testes unitários com xUnit
