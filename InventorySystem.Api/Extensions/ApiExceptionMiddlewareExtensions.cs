@@ -6,7 +6,7 @@ namespace InventorySystem.Api.Extensions;
 
 public static class ApiExceptionMiddlewareExtensions
 {
-    public static void ConfigureExceptionHandler(this IApplicationBuilder app)
+    public static void ConfigureExceptionHandler(this IApplicationBuilder app, IWebHostEnvironment env)
     {
         app.UseExceptionHandler(appError =>
         {
@@ -18,8 +18,16 @@ public static class ApiExceptionMiddlewareExtensions
                 var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                 if (contextFeature != null)
                 {
-                    await context.Response.WriteAsync(new ErrorDetails(context.Response.StatusCode,
-                        contextFeature.Error.Message, contextFeature.Error.StackTrace).ToString());
+                    if (env.IsDevelopment())
+                    {
+                        await context.Response.WriteAsync(new ErrorDetails(context.Response.StatusCode,
+                            contextFeature.Error.Message, contextFeature.Error.StackTrace).ToString());
+                    }
+                    else
+                    {
+                        await context.Response.WriteAsync(new ErrorDetails(context.Response.StatusCode,
+                            contextFeature.Error.Message, null).ToString());
+                    }
                 }
             });
         });

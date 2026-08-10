@@ -1,3 +1,4 @@
+using InventorySystem.Api.Extensions;
 using InventorySystem.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,11 +17,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
+    app.ConfigureExceptionHandler(app.Environment);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "InventorySystem API"));
+    
 }
 
 app.UseHttpsRedirection();
