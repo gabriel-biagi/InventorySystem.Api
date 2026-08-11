@@ -19,9 +19,9 @@ namespace InventorySystem.Api.Controllers;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            var products = _context.Products.ToList();
+            var products = await _context.Products.ToListAsync();
             if (!products.Any())
             {
                 return NotFound("No products found");
@@ -30,9 +30,9 @@ namespace InventorySystem.Api.Controllers;
         }
 
         [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
-        public ActionResult<Product> GetProduct(int id)
+        public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = _context.Products.Find(id);
+            var product = await _context.Products.FindAsync(id);
             if (product is null)
             {
                 return NotFound("No product found");
@@ -41,23 +41,23 @@ namespace InventorySystem.Api.Controllers;
         }
 
         [HttpPost]
-        public ActionResult<Product> PostProduct(Product? product)
+        public async Task<ActionResult<Product>> PostProduct(Product? product)
         {
             if (product is null)
             {
                 return BadRequest("Product is null");
             }
             _context.Products.Add(product);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
         }
 
         [HttpDelete("{id:int:min(1)}")]
-        public ActionResult DeleteProduct(int id)
+        public async Task<ActionResult> DeleteProduct(int id)
         {
-            var rowsafected = _context.Products
+            var rowsafected = await _context.Products
                 .Where(b => b.ProductId == id)
-                .ExecuteDelete();
+                .ExecuteDeleteAsync();
             if (rowsafected == 0)
             {
                 return NotFound("No products found");
@@ -66,9 +66,9 @@ namespace InventorySystem.Api.Controllers;
         }
 
         [HttpPut("{id:int:min(1)}")]
-        public ActionResult<Product> PutProduct(int id, string name)
+        public async Task<ActionResult<Product>> PutProduct(int id, string name)
         {
-            var product =  _context.Products.Find(id);
+            var product =  await _context.Products.FindAsync(id);
             if (product is null)
             {
                 return NotFound("No product found");
@@ -81,7 +81,7 @@ namespace InventorySystem.Api.Controllers;
             {
                 return BadRequest(e.Message);
             }
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
