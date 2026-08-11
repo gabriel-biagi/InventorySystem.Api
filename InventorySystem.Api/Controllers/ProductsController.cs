@@ -1,9 +1,12 @@
-﻿using InventorySystem.Domain.Entities;
+﻿using InventorySystem.Api.Filters;
+using InventorySystem.Domain.Entities;
 using InventorySystem.Infrastructure.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventorySystem.Api.Controllers;
+
+    [ServiceFilter(typeof(ApiLoggingFilter))]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase

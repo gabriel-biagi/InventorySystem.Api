@@ -1,4 +1,5 @@
 using InventorySystem.Api.Extensions;
+using InventorySystem.Api.Filters;
 using InventorySystem.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,8 @@ builder.Services.AddSwaggerGen();
 var mySqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnectionString, ServerVersion.AutoDetect(mySqlConnectionString)));
+
+builder.Services.AddScoped<ApiLoggingFilter>();
 
 var app = builder.Build();
 
