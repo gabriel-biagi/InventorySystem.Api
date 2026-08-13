@@ -4,9 +4,10 @@ namespace InventorySystem.Domain.Interfaces
 {
     public interface IProductRepository
     {
-        Product? GetById(int id);
-        void Add(Product product);
-        void Update(Product product);
-        void Delete(int id);
+        Task<IEnumerable<Product>> GetAllAsync();
+        Task<Product?> GetByIdAsync(int id);
+        Task<Product> CreateAsync(Product product);
+        Task<Product> UpdateAsync(Product product);
+        Task DeleteAsync(Product product);
     }
 }
