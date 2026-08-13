@@ -21,12 +21,12 @@ public static class ApiExceptionMiddlewareExtensions
                     if (env.IsDevelopment())
                     {
                         await context.Response.WriteAsync(new ErrorDetails(context.Response.StatusCode,
-                            contextFeature.Error.Message, contextFeature.Error.StackTrace).ToString());
+                            contextFeature.Error.Message, context.TraceIdentifier, contextFeature.Error.StackTrace).ToString());
                     }
                     else
                     {
                         await context.Response.WriteAsync(new ErrorDetails(context.Response.StatusCode,
-                            contextFeature.Error.Message, null).ToString());
+                            contextFeature.Error.Message, context.TraceIdentifier, null).ToString());
                     }
                 }
             });
