@@ -1,5 +1,6 @@
 ﻿using InventorySystem.Api.Filters;
 using InventorySystem.Domain.Entities;
+using InventorySystem.Domain.Interfaces;
 using InventorySystem.Infrastructure.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,33 +12,29 @@ namespace InventorySystem.Api.Controllers;
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private  readonly AppDbContext _context;
+        private  readonly IProductRepository _repository;
         
-        public ProductsController(AppDbContext context)
+        public ProductsController(IProductRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            var products = await _context.Products.ToListAsync();
-            if (!products.Any())
-            {
-                return NotFound("No products found");
-            }
-            return products;
+            var products = await _repository.GetAllAsync();
+            return Ok(products);
         }
 
         [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<Product>> GetProductById(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _repository.GetByIdAsync(id);
             if (product is null)
             {
                 return NotFound("No product found");
             }
-            return product;
+            return Ok(product);
         }
 
         [HttpPost]
@@ -45,44 +42,35 @@ namespace InventorySystem.Api.Controllers;
         {
             if (product is null)
             {
-                return BadRequest("Product is null");
+                return BadRequest("No products found");
             }
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
+            var productCreated = await _repository.CreateAsync(product);
+            return CreatedAtAction("GetProduct", new { id = productCreated.ProductId }, productCreated);
         }
 
         [HttpDelete("{id:int:min(1)}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
-            var rowsafected = await _context.Products
-                .Where(b => b.ProductId == id)
-                .ExecuteDeleteAsync();
-            if (rowsafected == 0)
+            var product =  await _repository.GetByIdAsync(id);
+            if (product is null)
             {
-                return NotFound("No products found");
+                return NotFound("No product found");
             }
+            await _repository.DeleteAsync(product);
             return NoContent();
         }
 
         [HttpPut("{id:int:min(1)}")]
         public async Task<ActionResult<Product>> PutProduct(int id, string name)
         {
-            var product =  await _context.Products.FindAsync(id);
+            var product = await _repository.GetByIdAsync(id);
             if (product is null)
             {
                 return NotFound("No product found");
             }
-            try
-            {
-                product.UpdateName(name);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-            await _context.SaveChangesAsync();
-            return NoContent();
+            product.UpdateName(name);
+            var  productUpdated = await _repository.UpdateAsync(product);
+            return Ok(productUpdated);
         }
 
     }
