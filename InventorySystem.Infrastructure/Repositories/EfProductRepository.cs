@@ -27,11 +27,7 @@ public class EfProductRepository : IProductRepository
 
     public async Task<Product> CreateAsync(Product product)
     {
-        if (product == null)
-        {
-            throw new ArgumentNullException(nameof(product));
-        }
-        
+        ArgumentNullException.ThrowIfNull(product);
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
         return product;
@@ -39,10 +35,7 @@ public class EfProductRepository : IProductRepository
 
     public async Task<Product> UpdateAsync(Product product)
     {
-        if (product == null)
-        {
-            throw new ArgumentNullException(nameof(product));
-        }
+        ArgumentNullException.ThrowIfNull(product);
         _context.Products.Update(product);
         await _context.SaveChangesAsync();
         return product;
@@ -50,10 +43,7 @@ public class EfProductRepository : IProductRepository
 
     public async Task DeleteAsync(Product product)
     {
-        if (product == null)
-        {
-            throw new ArgumentNullException(nameof(product));
-        }
+        ArgumentNullException.ThrowIfNull(product);
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
     }
