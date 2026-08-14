@@ -4,7 +4,7 @@ using InventorySystem.Domain.Interfaces;
 using InventorySystem.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace InventorySystem.Infrastructure;
+namespace InventorySystem.Infrastructure.Repositories;
 
 public class EfProductRepository : IProductRepository
 {
