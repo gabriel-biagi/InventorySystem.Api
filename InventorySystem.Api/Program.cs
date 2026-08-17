@@ -1,6 +1,8 @@
 using InventorySystem.Api.Extensions;
 using InventorySystem.Api.Filters;
+using InventorySystem.Domain.Interfaces;
 using InventorySystem.Infrastructure.Context;
+using InventorySystem.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnectionString, ServerVersion.AutoDetect(mySqlConnectionString)));
 
 builder.Services.AddScoped<ApiLoggingFilter>();
+builder.Services.AddScoped<IProductRepository, EfProductRepository>();
+builder.Services.AddScoped<IInventoryRepository, EfInventoryRepository>();
 
 var app = builder.Build();
 

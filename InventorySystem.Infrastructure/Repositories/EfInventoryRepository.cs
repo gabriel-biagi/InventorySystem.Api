@@ -21,11 +21,24 @@ public class EfInventoryRepository : IInventoryRepository
         return itens;
     }
 
-    public async Task<InventoryItem?> GetByProductIdAsync(int productId)
+    public async Task<InventoryItem?> GetByIdAsync(int id)
     {
-        return await _context.InventoryItems
-            .Include(b => b.Product)
-            .FirstOrDefaultAsync(b => b.Product.ProductId == productId);
+        var item = await _context.InventoryItems.FindAsync(id);
+        ArgumentNullException.ThrowIfNull(item);
+        return item;
+    }
+    
+    public async Task<IEnumerable<InventoryItem>> GetItemsByProductIdAsync(int productId)
+    {
+        var items = _context.InventoryItems.Include(b => b.Product)
+            .Where(b => b.Product.ProductId == productId);
+        return await items.ToListAsync();
+    }
+
+    public async Task<Product?> GetProductByIdAsync(int productId)
+    {
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
+        return product;
     }
 
     public async Task<InventoryItem> AddAsync(InventoryItem inventoryItem)
@@ -52,5 +65,15 @@ public class EfInventoryRepository : IInventoryRepository
         
         _context.InventoryItems.Remove(inventoryItem);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteByIdAsync(int id)
+    {
+        ArgumentNullException.ThrowIfNull(id);
+        
+        var item = await _context.InventoryItems.FindAsync(id);
+        ArgumentNullException.ThrowIfNull(item);
+        _context.InventoryItems.Remove(item);
+        await  _context.SaveChangesAsync();
     }
 }

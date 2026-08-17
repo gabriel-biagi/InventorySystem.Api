@@ -45,7 +45,7 @@ namespace InventorySystem.Api.Controllers;
                 return BadRequest("No products found");
             }
             var productCreated = await _repository.CreateAsync(product);
-            return CreatedAtAction("GetProduct", new { id = productCreated.ProductId }, productCreated);
+            return CreatedAtAction("PostProduct", new { id = productCreated.ProductId }, productCreated);
         }
 
         [HttpDelete("{id:int:min(1)}")]
