@@ -1,5 +1,6 @@
 using InventorySystem.Api.Extensions;
 using InventorySystem.Api.Filters;
+using InventorySystem.Application.DTOs.Mappings;
 using InventorySystem.Domain.Interfaces;
 using InventorySystem.Infrastructure.Context;
 using InventorySystem.Infrastructure.Repositories;
@@ -21,6 +22,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ApiLoggingFilter>();
 builder.Services.AddScoped<IProductRepository, EfProductRepository>();
 builder.Services.AddScoped<IInventoryRepository, EfInventoryRepository>();
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 

@@ -24,14 +24,14 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<InventoryItem>>> GetInventoryItems()
+    public async Task<ActionResult<IEnumerable<InventoryItemResponse>>> GetInventoryItems()
     {
         var itens = await _repository.GetAllAsync();
         return Ok(itens);
     }
 
     [HttpPost("{productId:int:min(1)}")]
-    public async Task<ActionResult<InventoryItem>> PostInventoryItem(int productId, [FromBody] InventoryItemRequest request)
+    public async Task<ActionResult<InventoryItemResponse>> PostInventoryItem(int productId, [FromBody] InventoryItemRequest request)
     {
         var product = await _repository.GetProductByIdAsync(productId);
         if (product is null)
@@ -48,7 +48,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpGet("products/{productId:int:min(1)}")]
-    public async Task<ActionResult<IEnumerable<InventoryItem>>> GetInventoryItemsByProduct(int productId)
+    public async Task<ActionResult<IEnumerable<InventoryItemResponse>>> GetInventoryItemsByProduct(int productId)
     {
         var items = await _repository.GetItemsByProductIdAsync(productId);
         if (!items.Any())
@@ -59,7 +59,7 @@ public class InventoryItensController : ControllerBase
     }
     
     [HttpGet("{id:int:min(1)}")]
-    public async Task<ActionResult<InventoryItem>> GetInventoryItem(int id)
+    public async Task<ActionResult<InventoryItemResponse>> GetInventoryItem(int id)
     {
         var item = await _repository.GetByIdAsync(id);
         if (item is null)
@@ -70,7 +70,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpPut("{id:int:min(1)}/add-quantity")]
-    public async Task<ActionResult<InventoryItem>> PutInventoryItem(int id, decimal quantity)
+    public async Task<ActionResult<InventoryItemResponse>> PutInventoryItem(int id, decimal quantity)
     {
         var item = await _repository.GetByIdAsync(id);
         if (item is null)
@@ -84,7 +84,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpPut("{id:int:min(1)}/remove-quantity")]
-    public async Task<ActionResult<InventoryItem>> RemoveInventoryItem(int id, decimal quantity)
+    public async Task<ActionResult<InventoryItemResponse>> RemoveInventoryItem(int id, decimal quantity)
     {
         var item = await _repository.GetByIdAsync(id);
         if (item is null)
@@ -98,7 +98,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpDelete("{id:int:min(1)}")]
-    public async Task<ActionResult<InventoryItem>> DeleteInventoryItemById(int id)
+    public async Task<ActionResult<InventoryItemResponse>> DeleteInventoryItemById(int id)
     {
         await _repository.DeleteByIdAsync(id);
         return NoContent();

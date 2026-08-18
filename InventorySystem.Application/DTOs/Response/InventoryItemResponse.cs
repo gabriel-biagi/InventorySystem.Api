@@ -1,8 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InventorySystem.Application.DTOs.Response;
 
 public class InventoryItemResponse
 {
     public int InventoryItemId { get; set; }
+    
+    [Required]
     public ProductResponse Product { get; set; }
     public int Column { get; set; }
     public int Shelf { get; set; }
