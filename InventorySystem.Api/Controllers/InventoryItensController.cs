@@ -1,6 +1,9 @@
 ﻿using InventorySystem.Api.Filters;
 using InventorySystem.Domain.Entities;
 using InventorySystem.Domain.Interfaces;
+using InventorySystem.Application.DTOs;
+using InventorySystem.Application.DTOs.Request;
+using InventorySystem.Application.DTOs.Response;
 using InventorySystem.Infrastructure.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +44,7 @@ public class InventoryItensController : ControllerBase
         
         var created = await _repository.AddAsync(inventoryItem);
 
-        return CreatedAtAction(nameof(PostInventoryItem), new { id = inventoryItem.InventoryItemId }, inventoryItem);
+        return CreatedAtAction(nameof(GetInventoryItem), new { id = inventoryItem.InventoryItemId }, inventoryItem);
     }
 
     [HttpGet("products/{productId:int:min(1)}")]
@@ -53,6 +56,17 @@ public class InventoryItensController : ControllerBase
             return NotFound("No items found");
         }
         return Ok(items);
+    }
+    
+    [HttpGet("{id:int:min(1)}")]
+    public async Task<ActionResult<InventoryItem>> GetInventoryItem(int id)
+    {
+        var item = await _repository.GetByIdAsync(id);
+        if (item is null)
+        {
+            return NotFound("No items found");
+        }
+        return Ok(item);
     }
 
     [HttpPut("{id:int:min(1)}/add-quantity")]
@@ -89,11 +103,4 @@ public class InventoryItensController : ControllerBase
         await _repository.DeleteByIdAsync(id);
         return NoContent();
     }
-}
-public class InventoryItemRequest
-{
-    public int Column { get; set; }
-    public int Shelf { get; set; }
-    public int Item { get; set; }
-    public decimal Quantity { get; set; }
 }
