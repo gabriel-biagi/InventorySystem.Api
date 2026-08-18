@@ -8,6 +8,9 @@ public class InventoryItemResponseMappingProfile : Profile
 {
     public InventoryItemResponseMappingProfile()
     {
-        CreateMap<InventoryItem, InventoryItemResponse>();
+        CreateMap<InventoryItem, InventoryItemResponse>()
+            .ForMember(dest => dest.Column, opt => opt.MapFrom(src => src.Location.Column))
+            .ForMember(dest => dest.Shelf, opt => opt.MapFrom(src => src.Location.Shelf))
+            .ForMember(dest => dest.Item, opt => opt.MapFrom(src => src.Location.Item));
     }
 }

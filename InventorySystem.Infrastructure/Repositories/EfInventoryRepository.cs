@@ -23,8 +23,9 @@ public class EfInventoryRepository : IInventoryRepository
 
     public async Task<InventoryItem?> GetByIdAsync(int id)
     {
-        var item = await _context.InventoryItems.FindAsync(id);
-        ArgumentNullException.ThrowIfNull(item);
+        var item = await _context.InventoryItems
+            .Include(i => i.Product)
+            .FirstOrDefaultAsync(i => i.InventoryItemId == id);
         return item;
     }
     
@@ -62,18 +63,7 @@ public class EfInventoryRepository : IInventoryRepository
     public async Task DeleteAsync(InventoryItem inventoryItem)
     {
         ArgumentNullException.ThrowIfNull(inventoryItem);
-        
         _context.InventoryItems.Remove(inventoryItem);
         await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteByIdAsync(int id)
-    {
-        ArgumentNullException.ThrowIfNull(id);
-        
-        var item = await _context.InventoryItems.FindAsync(id);
-        ArgumentNullException.ThrowIfNull(item);
-        _context.InventoryItems.Remove(item);
-        await  _context.SaveChangesAsync();
     }
 }

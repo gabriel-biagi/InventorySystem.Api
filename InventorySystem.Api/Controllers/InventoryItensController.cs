@@ -112,7 +112,12 @@ public class InventoryItensController : ControllerBase
     [HttpDelete("{id:int:min(1)}")]
     public async Task<ActionResult<InventoryItemResponse>> DeleteInventoryItemById(int id)
     {
-        await _repository.DeleteByIdAsync(id);
+        var item = await _repository.GetByIdAsync(id);
+        if (item is null)
+        {
+            return NotFound("No items found");
+        }
+        await _repository.DeleteAsync(item);
         return NoContent();
     }
 }

@@ -23,11 +23,11 @@ builder.Services.AddScoped<ApiLoggingFilter>();
 builder.Services.AddScoped<IProductRepository, EfProductRepository>();
 builder.Services.AddScoped<IInventoryRepository, EfInventoryRepository>();
 
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(InventoryItemResponseMappingProfile).Assembly);
 
 var app = builder.Build();
 
-    app.ConfigureExceptionHandler(app.Environment);
+app.ConfigureExceptionHandler(app.Environment);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
