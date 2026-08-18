@@ -1,4 +1,7 @@
-﻿using InventorySystem.Api.Filters;
+﻿using AutoMapper;
+using InventorySystem.Api.Filters;
+using InventorySystem.Application.DTOs.Request;
+using InventorySystem.Application.DTOs.Response;
 using InventorySystem.Domain.Entities;
 using InventorySystem.Domain.Interfaces;
 using InventorySystem.Infrastructure.Context;
@@ -13,39 +16,49 @@ namespace InventorySystem.Api.Controllers;
     public class ProductsController : ControllerBase
     {
         private  readonly IProductRepository _repository;
+        private readonly IMapper _mapper;
         
-        public ProductsController(IProductRepository repository)
+        public ProductsController(IProductRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts()
         {
             var products = await _repository.GetAllAsync();
-            return Ok(products);
+            
+            var productsDto =  _mapper.Map<IEnumerable<ProductResponse>>(products);
+            return Ok(productsDto);
         }
 
         [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
-        public async Task<ActionResult<Product>> GetProductById(int id)
+        public async Task<ActionResult<ProductResponse>> GetProductById(int id)
         {
             var product = await _repository.GetByIdAsync(id);
             if (product is null)
             {
                 return NotFound("No product found");
             }
-            return Ok(product);
+            
+            var productDto =  _mapper.Map<ProductResponse>(product);
+            return Ok(productDto);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product? product)
+        public async Task<ActionResult<ProductResponse>> PostProduct([FromBody] ProductRequest request)
         {
-            if (product is null)
+            if (request is null)
             {
-                return BadRequest("No products found");
+                return BadRequest("Invalid request");
             }
-            var productCreated = await _repository.CreateAsync(product);
-            return CreatedAtAction("PostProduct", new { id = productCreated.ProductId }, productCreated);
+            
+            var product = _mapper.Map<Product>(request);
+            await _repository.CreateAsync(product);
+            
+            var productDto = _mapper.Map<ProductResponse>(product);
+            return CreatedAtAction(nameof(GetProductById), new { id = productDto.ProductId }, productDto);
         }
 
         [HttpDelete("{id:int:min(1)}")]
@@ -61,7 +74,7 @@ namespace InventorySystem.Api.Controllers;
         }
 
         [HttpPut("{id:int:min(1)}")]
-        public async Task<ActionResult<Product>> PutProduct(int id, string name)
+        public async Task<ActionResult<ProductResponse>> PutProduct(int id, string name)
         {
             var product = await _repository.GetByIdAsync(id);
             if (product is null)
@@ -69,8 +82,10 @@ namespace InventorySystem.Api.Controllers;
                 return NotFound("No product found");
             }
             product.UpdateName(name);
-            var  productUpdated = await _repository.UpdateAsync(product);
-            return Ok(productUpdated);
+            await _repository.UpdateAsync(product);
+            
+            var productDto = _mapper.Map<ProductResponse>(product);
+            return Ok(productDto);
         }
 
     }
