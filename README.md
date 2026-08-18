@@ -28,11 +28,26 @@ InventorySystem/
 │   │   └── ProductsController.cs
 │   ├── Extensions/
 │   │   └── ApiExceptionMiddlewareExtensions.cs
+│   ├── Filters/
+│   │   └── ApiLoggingFilter.cs
 │   ├── Middlewares/
 │   │   └── ErrorDetails.cs
 │   ├── appsettings.json
+│   ├── appsettings.Development.json
 │   └── Program.cs
 ├── InventorySystem.Application/
+│   ├── DTOs/
+│   │   ├── Mappings/
+│   │   │   ├── InventoryItemRequestMappingProfile.cs
+│   │   │   ├── InventoryItemResponseMappingProfile.cs
+│   │   │   ├── ProductRequestMappingProfile.cs
+│   │   │   └── ProductResponseMappingProfile.cs
+│   │   ├── Request/
+│   │   │   ├── InventoryItemRequest.cs
+│   │   │   └── ProductRequest.cs
+│   │   └── Response/
+│   │       ├── InventoryItemResponse.cs
+│   │       └── ProductResponse.cs
 ├── InventorySystem.Domain/
 │   ├── Entities/
 │   │   ├── Employee.cs
@@ -48,8 +63,16 @@ InventorySystem/
 │       └── IProductRepository.cs
 └── InventorySystem.Infrastructure/
     ├── Context/
-    │   └── AppDbContext.cs
-    └── Migrations/
+    │   ├── AppDbContext.cs
+    │   └── AppDbContextModelSnapshot.cs
+    ├── Migrations/
+    │   ├── 20260803183539_Initial.cs
+    │   ├── 20260803203016_RenameIdsToPascalCase.cs
+    │   ├── 20260803205557_AddDataAnnotationsToEntities.cs
+    │   └── 20260803211320_SeedInitialProducts.cs
+    └── Repositories/
+        ├── EfInventoryRepository.cs
+        └── EfProductRepository.cs
 ```
 
 ---
@@ -75,36 +98,71 @@ InventorySystem/
 
 ## Stack
 
+**Language & Framework:**
 - C# / .NET 8
 - ASP.NET Core Web API
-- Entity Framework Core + MySQL (Pomelo)
-- Swagger / OpenAPI
+
+**Database & ORM:**
+- Entity Framework Core 8.0.11
+- Pomelo.EntityFrameworkCore.MySql 8.0.2
+- MySQL
+
+**API & Documentation:**
+- Swagger / OpenAPI (Swashbuckle.AspNetCore 6.6.2)
+
+**Mapping & AutoMapper:**
+- AutoMapper 12.0.1
+- AutoMapper.Extensions.Microsoft.DependencyInjection 12.0.1
+
+**Development Tools:**
+- Microsoft.EntityFrameworkCore.Design 8.0.11
 - Git / GitHub
 
 ---
 
 ## Endpoints disponíveis
 
-**Products** — `/products`
+**Products** — `/api/products`
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/products` | Lista todos os produtos |
-| GET | `/products/{id}` | Busca produto por ID |
-| POST | `/products` | Cadastra produto |
-| PUT | `/products/{id}` | Atualiza nome do produto |
-| DELETE | `/products/{id}` | Remove produto |
+| Método | Rota | Descrição | Body/Query |
+|--------|------|-----------|-----------|
+| GET | `/api/products` | Lista todos os produtos | — |
+| GET | `/api/products/{id}` | Busca produto por ID | — |
+| POST | `/api/products` | Cadastra novo produto | `ProductRequest` (JSON) |
+| PUT | `/api/products/{id}` | Atualiza nome do produto | `name` (query string) |
+| DELETE | `/api/products/{id}` | Remove produto | — |
 
-**Inventory Items** — `/inventoryitens`
+**Inventory Items** — `/api/inventoryitens`
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/inventoryitens` | Lista todos os itens de estoque |
-| GET | `/inventoryitens/{id}` | Busca item por ID |
-| POST | `/inventoryitens/products/{productId}` | Cadastra item vinculado a um produto |
-| PUT | `/inventoryitens/{id}/add-quantity` | Adiciona quantidade ao estoque |
-| PUT | `/inventoryitens/{id}/remove-quantity` | Remove quantidade do estoque |
-| DELETE | `/inventoryitens/{id}` | Remove item do estoque |
+| Método | Rota | Descrição | Body/Query |
+|--------|------|-----------|-----------|
+| GET | `/api/inventoryitens` | Lista todos os itens de estoque | — |
+| GET | `/api/inventoryitens/{id}` | Busca item por ID do inventário | — |
+| GET | `/api/inventoryitens/products/{productId}` | Lista itens por ProductID | — |
+| POST | `/api/inventoryitens/{productId}` | Cadastra item vinculado a um produto | `InventoryItemRequest` (JSON) |
+| PUT | `/api/inventoryitens/{id}/add-quantity` | Adiciona quantidade ao estoque | `quantity` (query string) |
+| PUT | `/api/inventoryitens/{id}/remove-quantity` | Remove quantidade do estoque | `quantity` (query string) |
+| DELETE | `/api/inventoryitens/{id}` | Remove item do estoque | — |
+
+**DTOs:**
+
+`ProductRequest`:
+```json
+{
+  "name": "string (80 chars max)",
+  "unitType": "Unit | Package | Kg | Liter"
+}
+```
+
+`InventoryItemRequest`:
+```json
+{
+  "column": "int (min: 1)",
+  "shelf": "int (min: 1)",
+  "item": "int (min: 1)",
+  "quantity": "decimal"
+}
+```
 
 ---
 
@@ -133,16 +191,21 @@ Em desenvolvimento ativo.
 
 **Concluído:**
 - ✅ Domínio com entidades e validações de negócio
-- ✅ Entity Framework Core com MySQL
+- ✅ Entity Framework Core com MySQL 8.0.2
 - ✅ Migrations e seed de dados iniciais (8 produtos de almoxarifado)
-- ✅ ProductsController com CRUD completo
-- ✅ InventoryItemsController com CRUD e endpoints de movimentação de quantidade
+- ✅ ProductsController e InventoryItensController com CRUD completo
+- ✅ Endpoints de movimentação de quantidade (add/remove)
 - ✅ Actions assíncronas (`async/await`) em todos os endpoints
 - ✅ Middleware global de tratamento de erros com `ErrorDetails` e ambiente-aware StackTrace
+- ✅ ApiLoggingFilter para logging de requisições e tempo de execução
+- ✅ Repository Pattern (EFProductRepository, EFInventoryRepository) com injeção de dependência
+- ✅ Camada Application com DTOs (Request/Response)
+- ✅ AutoMapper 12.0.1 para mapeamento automático de entidades ↔ DTOs
+- ✅ Validação de null em repositórios com fallback para controllers
 
 **Próximos passos:**
-- Repository Pattern com injeção de dependência
-- Camada Application com Services
-- DTOs com AutoMapper
+- Camada Application com Application Services
+- HttpPatch para atualizações parciais
 - Autenticação JWT com controle de acesso por cargo
 - Testes unitários com xUnit
+- Melhorias no tratamento de exceções customizadas
