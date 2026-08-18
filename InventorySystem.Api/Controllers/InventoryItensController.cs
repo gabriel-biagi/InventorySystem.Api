@@ -1,4 +1,5 @@
-﻿using InventorySystem.Api.Filters;
+﻿using AutoMapper;
+using InventorySystem.Api.Filters;
 using InventorySystem.Domain.Entities;
 using InventorySystem.Domain.Interfaces;
 using InventorySystem.Application.DTOs;
@@ -17,17 +18,20 @@ namespace InventorySystem.Api.Controllers;
 public class InventoryItensController : ControllerBase
 {
     private  readonly IInventoryRepository _repository;
+    private readonly IMapper _mapper;
 
-    public InventoryItensController(IInventoryRepository repository)
+    public InventoryItensController(IInventoryRepository repository,  IMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<InventoryItemResponse>>> GetInventoryItems()
     {
-        var itens = await _repository.GetAllAsync();
-        return Ok(itens);
+        var items = await _repository.GetAllAsync();
+        var itemsDto = _mapper.Map<IEnumerable<InventoryItemResponse>>(items);
+        return Ok(itemsDto);
     }
 
     [HttpPost("{productId:int:min(1)}")]
@@ -42,9 +46,10 @@ public class InventoryItensController : ControllerBase
         var location = new Location(request.Column, request.Shelf, request.Item);
         var inventoryItem = new InventoryItem(product, location, request.Quantity);
         
-        var created = await _repository.AddAsync(inventoryItem);
+        await _repository.AddAsync(inventoryItem);
 
-        return CreatedAtAction(nameof(GetInventoryItem), new { id = inventoryItem.InventoryItemId }, inventoryItem);
+        var inventoryItemDto = _mapper.Map<InventoryItemResponse>(inventoryItem);
+        return CreatedAtAction(nameof(GetInventoryItem), new { id = inventoryItemDto.InventoryItemId }, inventoryItemDto);
     }
 
     [HttpGet("products/{productId:int:min(1)}")]
@@ -55,7 +60,9 @@ public class InventoryItensController : ControllerBase
         {
             return NotFound("No items found");
         }
-        return Ok(items);
+        
+        var itemsDto = _mapper.Map<IEnumerable<InventoryItemResponse>>(items);
+        return Ok(itemsDto);
     }
     
     [HttpGet("{id:int:min(1)}")]
@@ -66,7 +73,8 @@ public class InventoryItensController : ControllerBase
         {
             return NotFound("No items found");
         }
-        return Ok(item);
+        var itemDto = _mapper.Map<InventoryItemResponse>(item);
+        return Ok(itemDto);
     }
 
     [HttpPut("{id:int:min(1)}/add-quantity")]
@@ -80,7 +88,9 @@ public class InventoryItensController : ControllerBase
         
         item.AddQuantity(quantity);
         await _repository.UpdateAsync(item);
-        return Ok(item);
+        
+        var itemDto = _mapper.Map<InventoryItemResponse>(item);
+        return Ok(itemDto);
     }
 
     [HttpPut("{id:int:min(1)}/remove-quantity")]
@@ -94,7 +104,9 @@ public class InventoryItensController : ControllerBase
         
         item.RemoveQuantity(quantity);
         await _repository.UpdateAsync(item);
-        return Ok(item);
+        
+        var itemDto = _mapper.Map<InventoryItemResponse>(item);
+        return Ok(itemDto);
     }
 
     [HttpDelete("{id:int:min(1)}")]
