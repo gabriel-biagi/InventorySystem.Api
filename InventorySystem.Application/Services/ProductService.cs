@@ -5,18 +5,21 @@ using InventorySystem.Application.Services.Interfaces;
 using InventorySystem.Domain.Entities;
 using InventorySystem.Domain.Exception;
 using InventorySystem.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventorySystem.Application.Services;
 
 public class ProductService : IProductService
 {
     private  readonly IProductRepository _repository;
+    private readonly IInventoryItemService _inventoryItemService;
     private readonly IMapper _mapper;
 
-    public ProductService(IProductRepository repository, IMapper mapper)
+    public ProductService(IProductRepository repository, IMapper mapper, IInventoryItemService inventoryItemService)
     {
         _repository = repository;
         _mapper = mapper;
+        _inventoryItemService = inventoryItemService;
     }
     
     public async Task<IEnumerable<ProductResponse>> GetAllAsync()
@@ -29,6 +32,11 @@ public class ProductService : IProductService
 
     public async Task<ProductResponse> GetByIdAsync(int id)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Product code must be greater than 0");
+        }
+        
         var product = await _repository.GetByIdAsync(id);
         if (product is null)
         {
@@ -41,7 +49,14 @@ public class ProductService : IProductService
     public async Task<ProductResponse> CreateAsync(ProductRequest request)
     {
         var product = _mapper.Map<Product>(request);
-        await _repository.CreateAsync(product);
+        try 
+        {
+            await _repository.CreateAsync(product);
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new BusinessException("Product with this name already exists");
+        }
             
         var productDto = _mapper.Map<ProductResponse>(product);
         return productDto;
@@ -49,6 +64,11 @@ public class ProductService : IProductService
 
     public async Task<ProductResponse> UpdateAsync(int id, string name)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Product code must be greater than 0");
+        }
+        
         var product = await _repository.GetByIdAsync(id);
         if (product is null)
         {
@@ -63,11 +83,19 @@ public class ProductService : IProductService
 
     public async Task DeleteAsync(int id)
     {
-        var product =  await _repository.GetByIdAsync(id);
-        if (product is null)
+        if (id <= 0)
         {
-            throw new NotFoundException("Product not found");
+            throw new ArgumentException("Product code must be greater than 0");
         }
+        
+        var product = await _repository.GetByIdAsync(id);
+        if (product is null)
+            throw new NotFoundException("Product not found");
+    
+        var items = await _inventoryItemService.GetItemsByProductIdAsync(id);
+        if (items.Any())
+            throw new BusinessException("Unable to delete product with in stock items");
+    
         await _repository.DeleteAsync(product);
     }
 }

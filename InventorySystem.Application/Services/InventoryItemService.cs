@@ -30,6 +30,11 @@ public class InventoryItemService : IInventoryItemService
 
     public async Task<InventoryItemResponse> GetByIdAsync(int id)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Inventory code must be greater than 0");
+        }
+        
         var item = await _repository.GetByIdAsync(id);
         if (item is null)
         {
@@ -41,6 +46,10 @@ public class InventoryItemService : IInventoryItemService
 
     public async Task<IEnumerable<InventoryItemResponse>> GetItemsByProductIdAsync(int productId)
     {
+        if (productId <= 0)
+        {
+            throw new ArgumentException("Product code must be greater than 0");
+        }
         var items =  await _repository.GetItemsByProductIdAsync(productId);
         if (!items.Any())
         {
@@ -54,6 +63,20 @@ public class InventoryItemService : IInventoryItemService
 
     public async Task<InventoryItemResponse> AddAsync(int productId, InventoryItemRequest request)
     {
+        if (productId <= 0)
+        {
+            throw new ArgumentException("Product code must be greater than 0");
+        }
+        
+        var existingItems = await _repository.GetItemsByProductIdWithoutValidationAsync(productId);
+        if (existingItems.Any(i => 
+                i.Location.Column == request.Column && 
+                i.Location.Shelf == request.Shelf && 
+                i.Location.Item == request.Item))
+        {
+            throw new BusinessException("Location already occupied on this product");
+        }
+        
         var product = await _productRepo.GetByIdAsync(productId);
         if (product is null)
         {
@@ -70,6 +93,11 @@ public class InventoryItemService : IInventoryItemService
 
     public async Task<InventoryItemResponse> UpdateAsync(int id, decimal quantity)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Inventory code must be greater than 0");
+        }
+        
         var item = await _repository.GetByIdAsync(id);
         if (item is null)
         {
@@ -85,6 +113,11 @@ public class InventoryItemService : IInventoryItemService
     
     public async Task<InventoryItemResponse> RemoveAsync(int id, decimal quantity)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Inventory code must be greater than 0");
+        }
+        
         var item = await _repository.GetByIdAsync(id);
         if (item is null)
         {
@@ -101,6 +134,11 @@ public class InventoryItemService : IInventoryItemService
 
     public async Task DeleteAsync(int id)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Inventory code must be greater than 0");
+        }
+        
         var item = await _repository.GetByIdAsync(id);
         if (item is null)
         {

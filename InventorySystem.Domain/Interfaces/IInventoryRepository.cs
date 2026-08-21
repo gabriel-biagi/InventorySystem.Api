@@ -10,5 +10,6 @@ namespace InventorySystem.Domain.Interfaces
         Task <InventoryItem> AddAsync(InventoryItem inventoryItem);
         Task<InventoryItem> UpdateAsync(InventoryItem inventoryItem);
         Task DeleteAsync(InventoryItem inventoryItem);
+        Task<IEnumerable<InventoryItem>> GetItemsByProductIdWithoutValidationAsync(int productId);
     }
 }
