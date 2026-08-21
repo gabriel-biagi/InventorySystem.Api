@@ -48,6 +48,12 @@ InventorySystem/
 │   │   └── Response/
 │   │       ├── InventoryItemResponse.cs
 │   │       └── ProductResponse.cs
+│   └── Services/
+│       ├── Interfaces/
+│       │   ├── IInventoryItemService.cs
+│       │   └── IProductService.cs
+│       ├── InventoryItemService.cs
+│       └── ProductService.cs
 ├── InventorySystem.Domain/
 │   ├── Entities/
 │   │   ├── Employee.cs
@@ -57,6 +63,10 @@ InventorySystem/
 │   ├── Enums/
 │   │   ├── Role.cs
 │   │   └── UnitType.cs
+│   ├── Exceptions/
+│   │   ├── BusinessException.cs
+│   │   ├── DomainException.cs
+│   │   └── NotFoundException.cs
 │   └── Interfaces/
 │       ├── IEmployeeRepository.cs
 │       ├── IInventoryRepository.cs
@@ -201,11 +211,14 @@ Em desenvolvimento ativo.
 - ✅ Repository Pattern (EFProductRepository, EFInventoryRepository) com injeção de dependência
 - ✅ Camada Application com DTOs (Request/Response)
 - ✅ AutoMapper 12.0.1 para mapeamento automático de entidades ↔ DTOs
-- ✅ Validação de null em repositórios com fallback para controllers
+- ✅ Application Services (ProductService, InventoryItemService) orquestrando lógica de negócio
+- ✅ Exceções customizadas (DomainException, NotFoundException, BusinessException) no Domain
+- ✅ Middleware global mapeando exceções de domínio para HTTP status (404, 400, 500)
+- ✅ Controllers refatorados para usar Services em vez de Repositories diretamente
 
 **Próximos passos:**
-- Camada Application com Application Services
-- HttpPatch para atualizações parciais
+- Testes unitários com xUnit (ProductService, InventoryItemService)
+- FluentValidation para validação robusta de DTOs
 - Autenticação JWT com controle de acesso por cargo
-- Testes unitários com xUnit
-- Melhorias no tratamento de exceções customizadas
+- HttpPatch para atualizações parciais
+- Paginação e filtros nos endpoints de listagem
