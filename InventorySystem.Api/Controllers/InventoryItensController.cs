@@ -1,14 +1,8 @@
-﻿using AutoMapper;
-using InventorySystem.Api.Filters;
-using InventorySystem.Domain.Entities;
-using InventorySystem.Domain.Interfaces;
-using InventorySystem.Application.DTOs;
+﻿using InventorySystem.Api.Filters;
 using InventorySystem.Application.DTOs.Request;
 using InventorySystem.Application.DTOs.Response;
-using InventorySystem.Infrastructure.Context;
+using InventorySystem.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace InventorySystem.Api.Controllers;
 
@@ -17,107 +11,59 @@ namespace InventorySystem.Api.Controllers;
 [ApiController]
 public class InventoryItensController : ControllerBase
 {
-    private  readonly IInventoryRepository _repository;
-    private readonly IMapper _mapper;
+    private  readonly IInventoryItemService _service;
 
-    public InventoryItensController(IInventoryRepository repository,  IMapper mapper)
+    public InventoryItensController(IInventoryItemService service)
     {
-        _repository = repository;
-        _mapper = mapper;
+        _service = service;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<InventoryItemResponse>>> GetInventoryItems()
     {
-        var items = await _repository.GetAllAsync();
-        var itemsDto = _mapper.Map<IEnumerable<InventoryItemResponse>>(items);
-        return Ok(itemsDto);
+        var items = await _service.GetAllAsync();
+        return Ok(items);
     }
 
     [HttpPost("{productId:int:min(1)}")]
     public async Task<ActionResult<InventoryItemResponse>> PostInventoryItem(int productId, [FromBody] InventoryItemRequest request)
     {
-        var product = await _repository.GetProductByIdAsync(productId);
-        if (product is null)
-        {
-            return NotFound("No products found");
-        }
-        
-        var location = new Location(request.Column, request.Shelf, request.Item);
-        var inventoryItem = new InventoryItem(product, location, request.Quantity);
-        
-        await _repository.AddAsync(inventoryItem);
-
-        var inventoryItemDto = _mapper.Map<InventoryItemResponse>(inventoryItem);
-        return CreatedAtAction(nameof(GetInventoryItem), new { id = inventoryItemDto.InventoryItemId }, inventoryItemDto);
+        var item = await _service.AddAsync(productId, request);
+        return CreatedAtAction(nameof(GetInventoryItem), new { id = item.InventoryItemId }, item);
     }
 
     [HttpGet("products/{productId:int:min(1)}")]
     public async Task<ActionResult<IEnumerable<InventoryItemResponse>>> GetInventoryItemsByProduct(int productId)
     {
-        var items = await _repository.GetItemsByProductIdAsync(productId);
-        if (!items.Any())
-        {
-            return NotFound("No items found");
-        }
-        
-        var itemsDto = _mapper.Map<IEnumerable<InventoryItemResponse>>(items);
-        return Ok(itemsDto);
+        var items = await _service.GetItemsByProductIdAsync(productId);
+        return Ok(items);
     }
     
     [HttpGet("{id:int:min(1)}")]
     public async Task<ActionResult<InventoryItemResponse>> GetInventoryItem(int id)
     {
-        var item = await _repository.GetByIdAsync(id);
-        if (item is null)
-        {
-            return NotFound("No items found");
-        }
-        var itemDto = _mapper.Map<InventoryItemResponse>(item);
-        return Ok(itemDto);
+        var item = await _service.GetByIdAsync(id);
+        return Ok(item);
     }
 
     [HttpPut("{id:int:min(1)}/add-quantity")]
     public async Task<ActionResult<InventoryItemResponse>> PutInventoryItem(int id, decimal quantity)
     {
-        var item = await _repository.GetByIdAsync(id);
-        if (item is null)
-        {
-            return NotFound("No items found");
-        }
-        
-        item.AddQuantity(quantity);
-        await _repository.UpdateAsync(item);
-        
-        var itemDto = _mapper.Map<InventoryItemResponse>(item);
-        return Ok(itemDto);
+        var item = await _service.UpdateAsync(id, quantity);
+        return Ok(item);
     }
 
     [HttpPut("{id:int:min(1)}/remove-quantity")]
     public async Task<ActionResult<InventoryItemResponse>> RemoveInventoryItem(int id, decimal quantity)
     {
-        var item = await _repository.GetByIdAsync(id);
-        if (item is null)
-        {
-            return NotFound("No items found");
-        }
-        
-        item.RemoveQuantity(quantity);
-        await _repository.UpdateAsync(item);
-        
-        var itemDto = _mapper.Map<InventoryItemResponse>(item);
-        return Ok(itemDto);
+        var item = await _service.RemoveAsync(id, quantity);
+        return Ok(item);
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<ActionResult<InventoryItemResponse>> DeleteInventoryItemById(int id)
     {
-        var item = await _repository.GetByIdAsync(id);
-        if (item is null)
-        {
-            return NotFound("No items found");
-        }
-        await _repository.DeleteAsync(item);
+        await _service.DeleteAsync(id);
         return NoContent();
     }
 }

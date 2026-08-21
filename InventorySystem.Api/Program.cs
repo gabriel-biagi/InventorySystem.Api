@@ -25,6 +25,7 @@ builder.Services.AddScoped<ApiLoggingFilter>();
 builder.Services.AddScoped<IProductRepository, EfProductRepository>();
 builder.Services.AddScoped<IInventoryRepository, EfInventoryRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IInventoryItemService, InventoryItemService>();
 
 builder.Services.AddAutoMapper(typeof(InventoryItemResponseMappingProfile).Assembly);
 
