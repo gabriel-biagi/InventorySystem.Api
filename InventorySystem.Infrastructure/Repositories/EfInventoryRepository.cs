@@ -67,10 +67,4 @@ public class EfInventoryRepository : IInventoryRepository
         await _context.SaveChangesAsync();
     }
     
-    public async Task<IEnumerable<InventoryItem>> GetItemsByProductIdWithoutValidationAsync(int productId)
-    {
-        var items = _context.InventoryItems.Include(b => b.Product)
-            .Where(b => b.Product.ProductId == productId);
-        return await items.ToListAsync();
-    }
 }

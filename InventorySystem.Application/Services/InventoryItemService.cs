@@ -51,11 +51,6 @@ public class InventoryItemService : IInventoryItemService
             throw new ArgumentException("Product code must be greater than 0");
         }
         var items =  await _repository.GetItemsByProductIdAsync(productId);
-        if (!items.Any())
-        {
-            throw new NotFoundException("No products found");
-        }
-        
         
         var itemsDto = _mapper.Map<IEnumerable<InventoryItemResponse>>(items);
         return itemsDto;
@@ -68,7 +63,13 @@ public class InventoryItemService : IInventoryItemService
             throw new ArgumentException("Product code must be greater than 0");
         }
         
-        var existingItems = await _repository.GetItemsByProductIdWithoutValidationAsync(productId);
+        var product = await _productRepo.GetByIdAsync(productId);
+        if (product is null)
+        {
+            throw new NotFoundException("No products found");
+        }
+        
+        var existingItems = await _repository.GetItemsByProductIdAsync(productId);
         if (existingItems.Any(i => 
                 i.Location.Column == request.Column && 
                 i.Location.Shelf == request.Shelf && 
@@ -77,11 +78,6 @@ public class InventoryItemService : IInventoryItemService
             throw new BusinessException("Location already occupied on this product");
         }
         
-        var product = await _productRepo.GetByIdAsync(productId);
-        if (product is null)
-        {
-            throw new NotFoundException("No products found");
-        }
         
         var location = new Location(request.Column, request.Shelf, request.Item);
         var inventoryItem = new InventoryItem(product, location, request.Quantity);
