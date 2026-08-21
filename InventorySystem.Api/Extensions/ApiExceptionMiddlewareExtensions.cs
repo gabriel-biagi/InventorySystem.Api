@@ -1,5 +1,6 @@
 using System.Net;
 using InventorySystem.Api.Middlewares;
+using InventorySystem.Domain.Exception;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace InventorySystem.Api.Extensions;
@@ -12,22 +13,29 @@ public static class ApiExceptionMiddlewareExtensions
         {
             appError.Run(async context =>
             {
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/json";
 
                 var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                 if (contextFeature != null)
                 {
-                    if (env.IsDevelopment())
+                    var exception = contextFeature.Error;
+                    
+                    context.Response.StatusCode = exception switch
                     {
-                        await context.Response.WriteAsync(new ErrorDetails(context.Response.StatusCode,
-                            contextFeature.Error.Message, context.TraceIdentifier, contextFeature.Error.StackTrace).ToString());
-                    }
-                    else
-                    {
-                        await context.Response.WriteAsync(new ErrorDetails(context.Response.StatusCode,
-                            contextFeature.Error.Message, context.TraceIdentifier, null).ToString());
-                    }
+                        NotFoundException => (int)HttpStatusCode.NotFound,
+                        BusinessException => (int)HttpStatusCode.BadRequest,
+                        _ => (int)HttpStatusCode.InternalServerError
+                    };
+
+                    var stackTrace = env.IsDevelopment() ? exception.StackTrace : null;
+                    var errorResponse = new ErrorDetails(
+                        context.Response.StatusCode,
+                        exception.Message,
+                        context.TraceIdentifier,
+                        stackTrace
+                    );
+
+                    await context.Response.WriteAsync(errorResponse.ToString());
                 }
             });
         });
