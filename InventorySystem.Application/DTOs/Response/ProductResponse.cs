@@ -1,4 +1,5 @@
 using InventorySystem.Domain;
+using InventorySystem.Domain.Enums;
 
 namespace InventorySystem.Application.DTOs.Response;
 

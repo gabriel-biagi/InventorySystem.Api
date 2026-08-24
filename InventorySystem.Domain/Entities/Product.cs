@@ -1,6 +1,7 @@
 ﻿
 
 using System.ComponentModel.DataAnnotations;
+using InventorySystem.Domain.Enums;
 
 namespace InventorySystem.Domain.Entities
 {

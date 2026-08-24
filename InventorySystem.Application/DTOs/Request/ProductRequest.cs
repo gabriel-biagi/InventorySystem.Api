@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using InventorySystem.Domain;
+using InventorySystem.Domain.Enums;
 
 namespace InventorySystem.Application.DTOs.Request;
 

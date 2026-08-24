@@ -2,7 +2,9 @@ using AutoMapper;
 using InventorySystem.Application.DTOs.Request;
 using InventorySystem.Application.DTOs.Response;
 using InventorySystem.Application.Services.Interfaces;
+using InventorySystem.Domain;
 using InventorySystem.Domain.Entities;
+using InventorySystem.Domain.Enums;
 using InventorySystem.Domain.Exception;
 using InventorySystem.Domain.Interfaces;
 
@@ -68,6 +70,8 @@ public class InventoryItemService : IInventoryItemService
         {
             throw new NotFoundException("No products found");
         }
+
+        QuantityCompatibilityChecker(product.UnitType, request.Quantity);
         
         var existingItems = await _repository.GetItemsByProductIdAsync(productId);
         if (existingItems.Any(i => 
@@ -100,6 +104,8 @@ public class InventoryItemService : IInventoryItemService
             throw new NotFoundException("No items found");
         }
         
+        QuantityCompatibilityChecker(item.Product.UnitType, quantity);
+        
         item.AddQuantity(quantity);
         await _repository.UpdateAsync(item);
         
@@ -119,6 +125,8 @@ public class InventoryItemService : IInventoryItemService
         {
             throw new NotFoundException("No items found");
         }
+        
+        QuantityCompatibilityChecker(item.Product.UnitType, quantity);
         
         item.RemoveQuantity(quantity);
         await _repository.UpdateAsync(item);
@@ -141,5 +149,26 @@ public class InventoryItemService : IInventoryItemService
             throw new NotFoundException("No items found");
         }
         await _repository.DeleteAsync(item);
+    }
+
+    private static bool IntegerNumberChecker(Decimal quantity)
+    {
+        return (quantity % 1) == 0;
+    }
+
+    private static bool UnitOrPackageVerify(UnitType unitType)
+    {
+        return unitType == UnitType.Unit  || unitType == UnitType.Package;
+    }
+
+    private static void QuantityCompatibilityChecker(UnitType unitType, Decimal quantity)
+    {
+        if (UnitOrPackageVerify(unitType))
+        {
+            if (!IntegerNumberChecker(quantity))
+            {
+                throw new BusinessException("Quantity must be integer for Unit or Package");
+            }
+        }
     }
 }

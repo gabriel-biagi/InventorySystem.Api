@@ -1,5 +1,5 @@
 ﻿
-namespace InventorySystem.Domain
+namespace InventorySystem.Domain.Enums
 {
     public enum UnitType
     {
