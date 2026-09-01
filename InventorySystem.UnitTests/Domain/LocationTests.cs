@@ -9,7 +9,8 @@ public class LocationTests
     [Fact]
     public void CreateLocation_WhenLocationLessThan0_ThrowsArgumentException()
     {
-        Assert.Throws<ArgumentException>(() => new Location(1, 2, -1));
+        var ex = Assert.Throws<ArgumentException>(() => new Location(1, 2, -1));
+        Assert.Equal("Invalid location", ex.Message);
     }
     
     [Fact]

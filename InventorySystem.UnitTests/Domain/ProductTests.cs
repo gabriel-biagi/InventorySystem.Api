@@ -11,21 +11,24 @@ public class ProductTests
     {
         var product = new Product("Testee", UnitType.Unit);
         
-        Assert.Throws<ArgumentException>(() => product.UpdateName("A"));
+        var ex = Assert.Throws<ArgumentException>(() => product.UpdateName("A"));
+        Assert.Equal("The product name must be at least 5 characters long.", ex.Message);
     }
 
     [Fact]
     public void UpdateName_WhenNameIsWhiteSpace_ThrowsArgumentException()
     {
         var product = new Product("Testee", UnitType.Unit);
-        Assert.Throws<ArgumentException>(() => product.UpdateName(" "));
+        var ex = Assert.Throws<ArgumentException>(() => product.UpdateName(" "));
+        Assert.Equal("The product name must be at least 5 characters long.", ex.Message);
     }
     
     [Fact]
     public void UpdateName_WhenNameIsNull_ThrowsArgumentException()
     {
         var product = new Product("Testee", UnitType.Unit);
-        Assert.Throws<ArgumentException>(() => product.UpdateName(null));
+        var ex = Assert.Throws<ArgumentException>(() => product.UpdateName(null));
+        Assert.Equal("The product name must be at least 5 characters long.", ex.Message);
     }
 
     [Fact]

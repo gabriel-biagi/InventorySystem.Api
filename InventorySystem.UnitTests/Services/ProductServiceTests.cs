@@ -21,7 +21,8 @@ public class ProductServiceTests
         
         var service = new ProductService(mockRepo.Object, mockMapper.Object, null);
         
-        await Assert.ThrowsAsync<ArgumentException>(() => service.GetByIdAsync(-1));
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() => service.GetByIdAsync(-1));
+        Assert.Equal("Product code must be greater than 0", ex.Message);
     }
 
     [Fact]
@@ -32,7 +33,8 @@ public class ProductServiceTests
         var mockMapper = new Mock<IMapper>();
         var service = new ProductService(mockRepo.Object, mockMapper.Object, null);
         
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetByIdAsync(1));
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => service.GetByIdAsync(1));
+        Assert.Equal("Product not found", ex.Message);
     }
     
     [Fact]
@@ -48,6 +50,7 @@ public class ProductServiceTests
         
         var service = new ProductService(mockRepo.Object, mockMapper.Object, mockInventoryService.Object);
         
-        await Assert.ThrowsAsync<BusinessException>(() => service.DeleteAsync(1));
+        var ex = await Assert.ThrowsAsync<BusinessException>(() => service.DeleteAsync(1));
+        Assert.Equal("Unable to delete product with in stock items", ex.Message);
     }
 }

@@ -19,6 +19,7 @@ public class InventoryItemServiceTests
             new InventoryItem(product, null, 1.5m));
         var service = new InventoryItemService(mockRepo.Object, null, null);
         
-        await Assert.ThrowsAsync<BusinessException>(() => service.UpdateAsync(1, 1.5m));
+        var ex = await Assert.ThrowsAsync<BusinessException>(() => service.UpdateAsync(1, 1.5m));
+        Assert.Equal("Quantity must be integer for Unit or Package", ex.Message);
     }
 }
