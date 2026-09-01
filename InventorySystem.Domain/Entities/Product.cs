@@ -32,6 +32,11 @@ namespace InventorySystem.Domain.Entities
             {
                 throw new ArgumentException("The product name must be at least 5 characters long.");
             }
+
+            if (name.Length > 80)
+            {
+                throw new ArgumentException("The product name must be less than 80 characters long.");
+            }
         }
     }
 }

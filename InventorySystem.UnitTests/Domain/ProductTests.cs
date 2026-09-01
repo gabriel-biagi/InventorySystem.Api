@@ -6,12 +6,14 @@ namespace InventorySystem.UnitTests.Domain;
 
 public class ProductTests
 {
-    [Fact]
-    public void UpdateName_WhenNameIsInvalid_ThrowsArgumentException()
+    [Theory]
+    [InlineData("Ab")]
+    [InlineData("Abcd")] 
+    public void UpdateName_WhenNameIsInvalid_ThrowsArgumentException(string newName)
     {
         var product = new Product("Testee", UnitType.Unit);
         
-        var ex = Assert.Throws<ArgumentException>(() => product.UpdateName("A"));
+        var ex = Assert.Throws<ArgumentException>(() => product.UpdateName(newName));
         Assert.Equal("The product name must be at least 5 characters long.", ex.Message);
     }
 
@@ -32,10 +34,22 @@ public class ProductTests
     }
 
     [Fact]
-    public void UpdateName_WhenNameAreValid_UpdatesNameSucessfully()
+    public void UpdateName_WhenNameHasMoreThan80Characters_ThrowsArgumentException()
     {
         var product = new Product("Testee", UnitType.Unit);
-        product.UpdateName("Testando");
-        Assert.Equal("Testando", product.Name);
+        
+        var ex = Assert.Throws<ArgumentException>(() => product.UpdateName(new  string('a', 81)));
+        Assert.Equal("The product name must be less than 80 characters long.", ex.Message);
+    }
+
+    [Theory]
+    [InlineData("Testando")]
+    [InlineData("A very long product name that has exactly eighty chars total in this string here")]
+    [InlineData("Testee")]
+    public void UpdateName_WhenNameIsInMinimunAndMaximumCharacterLimit_UpdatesNameSucessfully(string newName)
+    {
+        var  product = new Product("Initial Name", UnitType.Unit);
+        product.UpdateName(newName);
+        Assert.Equal(newName, product.Name);
     }
 }
