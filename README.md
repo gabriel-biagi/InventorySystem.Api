@@ -195,30 +195,69 @@ Acesse o Swagger em `https://localhost:{porta}/swagger`.
 
 ---
 
+## Testes
+
+**Framework:** xUnit + Moq
+
+**Executar testes:**
+```bash
+dotnet test
+```
+
+**Cobertura:** 20 testes unitários cobrindo Domain entities e Application Services.
+
+### Domain Entity Tests (15 testes)
+
+**ProductTests (8 testes)**
+- ✅ `UpdateName_WhenNameIsInvalid_ThrowsArgumentException` — **[Business Rule]** Rejeita nomes < 5 caracteres
+- ✅ `UpdateName_WhenNameIsWhiteSpace_ThrowsArgumentException` — Rejeita whitespace
+- ✅ `UpdateName_WhenNameIsNull_ThrowsArgumentException` — Rejeita null
+- ✅ `UpdateName_WhenNameHasMoreThan80Characters_ThrowsArgumentException` — **[Business Rule]** Rejeita nomes > 80 caracteres
+- ✅ `UpdateName_WhenNameIsInMinimumAndMaximumCharacterLimit_UpdatesNameSuccessfully` (3 cenários via `[Theory]`) — **[Business Rule]** Aceita nomes entre 5-80 caracteres
+
+**InventoryItemTests (5 testes)**
+- ✅ `AddQuantity_WhenQuantityIsNegative_ThrowsArgumentException` — **[Business Rule - CRÍTICO]** Rejeita quantidade ≤ 0
+- ✅ `AddQuantity_WhenQuantityAreValid_AddQuantitySuccessfully` — **[Business Rule - CRÍTICO]** Adiciona quantidade corretamente ao estoque
+- ✅ `RemoveQuantity_WhenQuantityIsNegative_ThrowsArgumentException` — **[Business Rule - CRÍTICO]** Rejeita remoção ≤ 0
+- ✅ `RemoveQuantity_WhenQuantityIsGreaterThanInStock_ThrowsArgumentException` — **[Business Rule - CRÍTICO]** Rejeita remoção > estoque disponível
+- ✅ `RemoveQuantity_WhenQuantityAreValid_RemoveQuantitySuccessfully` — **[Business Rule - CRÍTICO]** Remove quantidade corretamente do estoque
+
+**LocationTests (2 testes)**
+- ✅ `CreateLocation_WhenLocationLessThan0_ThrowsArgumentException` — Rejeita coordenadas < 1
+- ✅ `CreateLocation_WhenAllValuesAreValid_CreatesSuccessfully` — Cria localização com coordenadas válidas
+
+### Service Tests (5 testes)
+
+**ProductServiceTests (3 testes)**
+- ✅ `GetByIdAsync_WhenIdIsInvalid_ThrowsArgumentException` — **[Business Rule]** Rejeita ID ≤ 0
+- ✅ `GetByIdAsync_WhenProductIsNull_ThrowsNotFoundException` — **[Business Rule]** Produto não encontrado lança exceção
+- ✅ `DeleteAsync_WhenProductIsInStock_ThrowsBusinessException` — **[Business Rule - CRÍTICO]** Impede deletar produto com itens em estoque
+
+**InventoryItemServiceTests (2 testes)**
+- ✅ `UpdateAsync_WhenQuantityIsNotIntenger_ThrowsBusinessException` — **[Business Rule - CRÍTICO]** Unit/Package types devem ter quantidade inteira
+- ✅ `AddAsync_WhenParametersAreValid_AddAsyncSuccessfully` — Cria InventoryItem com sucesso retornando DTO mapeado
+
+---
+
 ## Status
 
 Em desenvolvimento ativo.
 
 **Concluído:**
-- ✅ Domínio com entidades e validações de negócio
-- ✅ Entity Framework Core com MySQL 8.0.2
-- ✅ Migrations e seed de dados iniciais (8 produtos de almoxarifado)
-- ✅ ProductsController e InventoryItensController com CRUD completo
-- ✅ Endpoints de movimentação de quantidade (add/remove)
-- ✅ Actions assíncronas (`async/await`) em todos os endpoints
-- ✅ Middleware global de tratamento de erros com `ErrorDetails` e ambiente-aware StackTrace
-- ✅ ApiLoggingFilter para logging de requisições e tempo de execução
-- ✅ Repository Pattern (EFProductRepository, EFInventoryRepository) com injeção de dependência
-- ✅ Camada Application com DTOs (Request/Response)
-- ✅ AutoMapper 12.0.1 para mapeamento automático de entidades ↔ DTOs
-- ✅ Application Services (ProductService, InventoryItemService) orquestrando lógica de negócio
-- ✅ Exceções customizadas (DomainException, NotFoundException, BusinessException) no Domain
-- ✅ Middleware global mapeando exceções de domínio para HTTP status (404, 400, 500)
-- ✅ Controllers refatorados para usar Services em vez de Repositories diretamente
+- ✅ Domínio com entidades e regras de negócio
+- ✅ API REST com CRUD de produtos e itens de estoque
+- ✅ Movimentação de entrada e saída de estoque
+- ✅ Persistência com EF Core + MySQL
+- ✅ Repository Pattern e arquitetura em camadas
+- ✅ DTOs + AutoMapper
+- ✅ Services para orquestração da lógica de aplicação
+- ✅ Middleware global para tratamento de exceções
+- ✅ Logging de requisições e tempo de execução
+- ✅ Testes unitários com xUnit + Moq, cobrindo regras críticas de negócio
 
 **Próximos passos:**
-- Testes unitários com xUnit (ProductService, InventoryItemService)
 - FluentValidation para validação robusta de DTOs
 - Autenticação JWT com controle de acesso por cargo
 - HttpPatch para atualizações parciais
 - Paginação e filtros nos endpoints de listagem
+- Testes de integração (Controllers)
