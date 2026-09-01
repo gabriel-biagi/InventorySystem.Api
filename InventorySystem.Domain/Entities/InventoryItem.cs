@@ -33,7 +33,6 @@ namespace InventorySystem.Domain.Entities
             {
                 throw new ArgumentException("Quantity must be greater than zero.");
             }
-
             Quantity += quantity;
         }
 
