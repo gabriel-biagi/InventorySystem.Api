@@ -3,6 +3,7 @@ using InventorySystem.Api.Filters;
 using InventorySystem.Application.DTOs.Request;
 using InventorySystem.Application.DTOs.Response;
 using InventorySystem.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventorySystem.Api.Controllers;
@@ -20,6 +21,7 @@ namespace InventorySystem.Api.Controllers;
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts()
         {
             var products = await _service.GetAllAsync();
