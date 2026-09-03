@@ -90,12 +90,20 @@ public class AuthController : Controller
         {
             return Unauthorized(new RegisterResponse { Success = false, Message = "User already exists!" });
         }
+        
+        var emailExists = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+        if (emailExists is not null)
+        {
+            return Unauthorized(new RegisterResponse { Success = false, Message = "Email already exists!" });
+        }
 
         ApplicationUser user = new()
         {
             RegistrationNumber = request.RegistrationNumber,
             SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = request.UserName
+            UserName = request.UserName,
+            Email = request.Email
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
