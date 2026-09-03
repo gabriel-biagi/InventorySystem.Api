@@ -6,6 +6,7 @@ using InventorySystem.Application.Services;
 using InventorySystem.Application.Services.Interfaces;
 using InventorySystem.Domain.Interfaces;
 using InventorySystem.Infrastructure.Context;
+using InventorySystem.Infrastructure.Identity;
 using InventorySystem.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +22,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 

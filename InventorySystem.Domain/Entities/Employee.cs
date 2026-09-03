@@ -4,7 +4,7 @@ namespace InventorySystem.Domain.Entities
 {
     public class Employee
     {
-        public int Registration { get; private set; }
+        public int RegistrationNumber { get; set; }
         public string Name { get; private set; }
         public Role Role { get; private set; }
 
