@@ -4,8 +4,10 @@ using InventorySystem.Application.DTOs.Request;
 using InventorySystem.Application.DTOs.Response;
 using InventorySystem.Application.Services.Interfaces;
 using InventorySystem.Infrastructure.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventorySystem.Api.Controllers;
@@ -114,5 +116,74 @@ public class AuthController : Controller
         }
         
         return Ok(new RegisterResponse { Success = true, Message = "User created successfully!" });
+    }
+
+    [HttpPost]
+    [Route("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        if (request is null)
+        {
+            return BadRequest("Invalid client request");
+        }
+
+        string? acessToken = request.AccessToken ?? throw new ArgumentNullException(nameof(request));
+        string refreshToken = request.RefreshToken ?? throw new ArgumentNullException(nameof(request));
+
+        var principal = _tokenService.GetPrincipalFromExpiredToken(acessToken!, _configuration);
+        if (principal == null)
+        {
+            return BadRequest("Invalid access token/refresh token");
+        }
+        
+        string username = principal.Identity.Name;
+        
+        var user = await _userManager.FindByNameAsync(username!);
+
+        if (user == null || user.RefreshToken != refreshToken 
+                         || user.RefreshTokenExpires <= DateTime.UtcNow)
+        {
+            return BadRequest("Invalid access token/refresh token");
+        }
+
+        var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims.ToList(), _configuration);
+
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+        user.RefreshToken = newRefreshToken;
+        await _userManager.UpdateAsync(user);
+
+        return Ok(new
+        {
+            accessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
+            refreshToken = newRefreshToken
+        });
+    }
+    
+    [Authorize]
+    [HttpPost]
+    [Route("revoke")]
+    public async Task<IActionResult> Revoke()
+    {
+        var registrationNumber = User.FindFirst("RegistrationNumber")?.Value;
+    
+        if (string.IsNullOrEmpty(registrationNumber) || !int.TryParse(registrationNumber, out int regNum))
+        {
+            return BadRequest("Invalid token");
+        }
+
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.RegistrationNumber == regNum);
+    
+        if (user is null)
+        {
+            return BadRequest("User not found");
+        }
+
+        user.RefreshToken = null;
+        user.RefreshTokenExpires = DateTime.MinValue;
+        await _userManager.UpdateAsync(user);
+    
+        return NoContent();
     }
 }
