@@ -130,36 +130,123 @@ InventorySystem/
 
 ---
 
+## Autenticação & Autorização
+
+**Framework:** ASP.NET Identity + JWT Bearer Tokens
+
+**Fluxo:**
+1. Usuário registra (cria conta com RegistrationNumber, UserName, Email, Password)
+2. Usuário faz login (valida credenciais, retorna AccessToken + RefreshToken)
+3. Cliente armazena tokens e usa AccessToken em requisições `[Authorize]`
+4. AccessToken expira (30 min) → cliente usa RefreshToken pra gerar novo
+5. Usuário faz logout (Revoke) → invalida RefreshToken
+
+**Segurança:**
+- Senhas hasheadas com salt (Identity padrão: PBKDF2)
+- AccessToken: 30 minutos (curto)
+- RefreshToken: 7 dias (longo), armazenado no BD em ApplicationUser
+- SecretKey armazenada em User Secrets (não no Git)
+- JWT assinado com HMAC-SHA256
+- Claims incluem: Name, RegistrationNumber, Role, Jti
+
+**Configuração:**
+
+User Secrets (rodar em `InventorySystem.Api`):
+```bash
+dotnet user-secrets set "JWT:SecretKey" "sua_chave_gerada_com_128_bytes"
+```
+
+appsettings.json:
+```json
+{
+  "JWT": {
+    "ValidAudience": "http://localhost:5014",
+    "ValidIssuer": "http://localhost:5014",
+    "TokenValidityInMinutes": 30,
+    "RefreshTokenValidityInDays": 7
+  }
+}
+```
+
+---
+
 ## Endpoints disponíveis
+
+**Authentication** — `/api/auth`
+
+| Método | Rota | Descrição | Body |
+|--------|------|-----------|------|
+| POST | `/api/auth/register` | Registra novo usuário | `RegisterRequest` |
+| POST | `/api/auth/login` | Faz login e retorna tokens | `LoginRequest` |
+| POST | `/api/auth/refresh-token` | Renova AccessToken com RefreshToken | `RefreshTokenRequest` |
+| POST | `/api/auth/revoke` | Invalida token (logout) | — |
 
 **Products** — `/api/products`
 
-| Método | Rota | Descrição | Body/Query |
-|--------|------|-----------|-----------|
-| GET | `/api/products` | Lista todos os produtos | — |
-| GET | `/api/products/{id}` | Busca produto por ID | — |
-| POST | `/api/products` | Cadastra novo produto | `ProductRequest` (JSON) |
-| PUT | `/api/products/{id}` | Atualiza nome do produto | `name` (query string) |
-| DELETE | `/api/products/{id}` | Remove produto | — |
+| Método | Rota | Descrição | Auth | Body/Query |
+|--------|------|-----------|------|-----------|
+| GET | `/api/products` | Lista todos os produtos | ✅ `[Authorize]` | — |
+| GET | `/api/products/{id}` | Busca produto por ID | ✅ `[Authorize]` | — |
+| POST | `/api/products` | Cadastra novo produto | ✅ `[Authorize]` | `ProductRequest` |
+| PUT | `/api/products/{id}` | Atualiza nome do produto | ✅ `[Authorize]` | `name` (query) |
+| DELETE | `/api/products/{id}` | Remove produto | ✅ `[Authorize]` | — |
 
 **Inventory Items** — `/api/inventoryitens`
 
-| Método | Rota | Descrição | Body/Query |
-|--------|------|-----------|-----------|
-| GET | `/api/inventoryitens` | Lista todos os itens de estoque | — |
-| GET | `/api/inventoryitens/{id}` | Busca item por ID do inventário | — |
-| GET | `/api/inventoryitens/products/{productId}` | Lista itens por ProductID | — |
-| POST | `/api/inventoryitens/{productId}` | Cadastra item vinculado a um produto | `InventoryItemRequest` (JSON) |
-| PUT | `/api/inventoryitens/{id}/add-quantity` | Adiciona quantidade ao estoque | `quantity` (query string) |
-| PUT | `/api/inventoryitens/{id}/remove-quantity` | Remove quantidade do estoque | `quantity` (query string) |
-| DELETE | `/api/inventoryitens/{id}` | Remove item do estoque | — |
+| Método | Rota | Descrição | Auth | Body/Query |
+|--------|------|-----------|------|-----------|
+| GET | `/api/inventoryitens` | Lista todos os itens | ✅ `[Authorize]` | — |
+| GET | `/api/inventoryitens/{id}` | Busca item por ID | ✅ `[Authorize]` | — |
+| GET | `/api/inventoryitens/products/{productId}` | Lista itens por ProductID | ✅ `[Authorize]` | — |
+| POST | `/api/inventoryitens/{productId}` | Cadastra item | ✅ `[Authorize]` | `InventoryItemRequest` |
+| PUT | `/api/inventoryitens/{id}/add-quantity` | Adiciona quantidade | ✅ `[Authorize]` | `quantity` (query) |
+| PUT | `/api/inventoryitens/{id}/remove-quantity` | Remove quantidade | ✅ `[Authorize]` | `quantity` (query) |
+| DELETE | `/api/inventoryitens/{id}` | Remove item | ✅ `[Authorize]` | — |
 
 **DTOs:**
+
+`RegisterRequest`:
+```json
+{
+  "registrationNumber": 2052897,
+  "userName": "gabriel",
+  "email": "gabriel@example.com",
+  "password": "Password@123"
+}
+```
+
+`LoginRequest`:
+```json
+{
+  "registrationNumber": 2052897,
+  "password": "Password@123"
+}
+```
+
+`LoginResponse`:
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+    "refreshToken": "V0FTLzBiMzQyZDM0MzZlZjMwYTMwYTcyNjE3NTc3ODQzNjQ2..."
+  }
+}
+```
+
+`RefreshTokenRequest`:
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "V0FTLzBiMzQyZDM0MzZlZjMwYTMwYTcyNjE3NTc3ODQzNjQ2..."
+}
+```
 
 `ProductRequest`:
 ```json
 {
-  "name": "string (80 chars max)",
+  "name": "string (5-80 chars)",
   "unitType": "Unit | Package | Kg | Liter"
 }
 ```
@@ -178,20 +265,52 @@ InventorySystem/
 
 ## Como rodar
 
+**1. Clone o repositório:**
 ```bash
-git clone https://github.com/gabriel-biagi/InventorySystem
-cd InventorySystem
-dotnet ef database update --project InventorySystem.Infrastructure --startup-project InventorySystem.Api
+git clone https://github.com/gabriel-biagi/InventorySystem.api
+cd InventorySystem.api/InventorySystem.api
+```
+
+**2. Configure User Secrets (chaves sensíveis):**
+
+Navegue até `InventorySystem.Api`:
+```bash
+cd InventorySystem.Api
+```
+
+Configure a connection string:
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=CatalogDB;Uid=root;Pwd=suasenha"
+```
+
+Configure a chave secreta JWT (gere uma chave aleatória segura de 128 bytes):
+```bash
+dotnet user-secrets set "JWT:SecretKey" "sua_chave_super_secreta_aqui_com_128_caracteres_minimo"
+```
+
+**3. Rode as migrations:**
+
+De volta na raiz do projeto:
+```bash
+cd ..
+dotnet ef database update --project ./InventorySystem.Infrastructure/InventorySystem.Infrastructure.csproj --startup-project ./InventorySystem.Api/InventorySystem.Api.csproj
+```
+
+**4. Rode a API:**
+```bash
 dotnet run --project InventorySystem.Api
 ```
 
-Configure a connection string via User Secrets no projeto `InventorySystem.Api`:
+**5. Acesse o Swagger:**
+Abra no navegador: `https://localhost:7102/swagger` (a porta pode variar)
 
-```bash
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=InventoryDB;Uid=root;Pwd=suasenha"
-```
-
-Acesse o Swagger em `https://localhost:{porta}/swagger`.
+**6. Teste o fluxo de autenticação:**
+- POST `/api/auth/register` → cria usuário
+- POST `/api/auth/login` → retorna tokens
+- Copie o `accessToken`
+- Clique no botão "Authorize" no Swagger
+- Cole: `Bearer {accessToken}`
+- Faça requisição em `/api/products` (agora autenticada)
 
 ---
 
@@ -241,23 +360,66 @@ dotnet test
 
 ## Status
 
-Em desenvolvimento ativo.
+Em desenvolvimento ativo. Pronto para júnior com mentorado.
 
 **Concluído:**
-- ✅ Domínio com entidades e regras de negócio
+- ✅ Domínio com entidades e regras de negócio (Product, InventoryItem, Location, Employee)
 - ✅ API REST com CRUD de produtos e itens de estoque
-- ✅ Movimentação de entrada e saída de estoque
-- ✅ Persistência com EF Core + MySQL
-- ✅ Repository Pattern e arquitetura em camadas
-- ✅ DTOs + AutoMapper
-- ✅ Services para orquestração da lógica de aplicação
-- ✅ Middleware global para tratamento de exceções
-- ✅ Logging de requisições e tempo de execução
-- ✅ Testes unitários com xUnit + Moq, cobrindo regras críticas de negócio
+- ✅ Movimentação de entrada e saída de estoque (AddQuantity, RemoveQuantity)
+- ✅ Persistência com EF Core 8 + MySQL 8 (Pomelo)
+- ✅ Repository Pattern (IProductRepository, IInventoryRepository)
+- ✅ Arquitetura em camadas (Domain → Application → Infrastructure → Api)
+- ✅ DTOs + AutoMapper 12.0.1
+- ✅ Application Services orquestrando lógica (ProductService, InventoryItemService)
+- ✅ Middleware global para tratamento de exceções (ErrorDetails)
+- ✅ Logging de requisições e tempo de execução (ApiLoggingFilter)
+- ✅ **Autenticação JWT** — Register, Login, RefreshToken, Revoke
+  - ApplicationUser customizado (RegistrationNumber, RefreshToken, RefreshTokenExpires)
+  - TokenService: GenerateAccessToken, GenerateRefreshToken, GetPrincipalFromExpiredToken
+  - AuthController com 4 endpoints de autenticação
+  - Claims: Name, RegistrationNumber, Role, Jti
+  - SecretKey em User Secrets (seguro)
+- ✅ Testes unitários com xUnit + Moq (20 testes)
+  - 15 testes Domain (Product, InventoryItem, Location)
+  - 5 testes Services (ProductService, InventoryItemService)
+  - Cobertura de regras críticas de negócio
+
+**Em Progress:**
+- 🔄 Autorização baseada em Roles/Policies (próximas aulas 144-151)
 
 **Próximos passos:**
+- Role-based authorization (`[Authorize(Roles = "Admin")]`)
+- Policy-based authorization (regras customizadas)
 - FluentValidation para validação robusta de DTOs
-- Autenticação JWT com controle de acesso por cargo
+- Testes de integração (Controllers)
 - HttpPatch para atualizações parciais
 - Paginação e filtros nos endpoints de listagem
-- Testes de integração (Controllers)
+- Rate limiting
+- Criptografia de RefreshToken no BD (não apenas hash)
+
+---
+
+## Aprendizado & Desenvolvimento
+
+Este projeto é fruto de **mentoria estruturada em autenticação JWT**.
+
+**Conceitos cobertos:**
+- Hash de senha one-way + salt (PBKDF2)
+- Estrutura JWT (Header.Payload.Signature)
+- AccessToken (curto) vs RefreshToken (longo)
+- Claims e sua extração
+- Validação de Signature com chave secreta
+- Fluxo completo: Login → Token generation → Refresh → Revoke
+
+**Nível:** Júnior com fundação sólida em segurança
+
+**Lacunas documentadas:**
+- ❌ Experiência zero em produção (nunca debugou sob pressão)
+- ❌ Segurança conhecida superficialmente (não profunda)
+- ❌ Nunca implementou criptografia de tokens
+- ❌ Defesa contra ataque limitada (pensa pequeno ainda)
+
+**Recomendações para Sênior:**
+- Code review rigoroso em autenticação/autorização
+- Mentor dedicado para primeiros 12-18 meses
+- Exposição gradual a segurança em produção
