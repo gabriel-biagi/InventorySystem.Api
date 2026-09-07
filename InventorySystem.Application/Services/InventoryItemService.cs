@@ -7,6 +7,7 @@ using InventorySystem.Domain.Entities;
 using InventorySystem.Domain.Enums;
 using InventorySystem.Domain.Exception;
 using InventorySystem.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace InventorySystem.Application.Services;
 

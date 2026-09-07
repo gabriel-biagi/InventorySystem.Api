@@ -2,6 +2,7 @@
 using InventorySystem.Application.DTOs.Request;
 using InventorySystem.Application.DTOs.Response;
 using InventorySystem.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventorySystem.Api.Controllers;
@@ -19,6 +20,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = "ManagerOrGestor")]
     public async Task<ActionResult<IEnumerable<InventoryItemResponse>>> GetInventoryItems()
     {
         var items = await _service.GetAllAsync();
@@ -26,6 +28,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpPost("{productId:int:min(1)}")]
+    [Authorize(Policy = "ManagerOrGestor")]
     public async Task<ActionResult<InventoryItemResponse>> PostInventoryItem(int productId, [FromBody] InventoryItemRequest request)
     {
         var item = await _service.AddAsync(productId, request);
@@ -33,6 +36,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpGet("products/{productId:int:min(1)}")]
+    [Authorize(Policy = "ManagerOrGestor")]
     public async Task<ActionResult<IEnumerable<InventoryItemResponse>>> GetInventoryItemsByProduct(int productId)
     {
         var items = await _service.GetItemsByProductIdAsync(productId);
@@ -40,6 +44,7 @@ public class InventoryItensController : ControllerBase
     }
     
     [HttpGet("{id:int:min(1)}")]
+    [Authorize(Policy = "ManagerOrGestor")]
     public async Task<ActionResult<InventoryItemResponse>> GetInventoryItem(int id)
     {
         var item = await _service.GetByIdAsync(id);
@@ -47,6 +52,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpPut("{id:int:min(1)}/add-quantity")]
+    [Authorize(Policy = "ManagerOrGestor")]
     public async Task<ActionResult<InventoryItemResponse>> PutInventoryItem(int id, decimal quantity)
     {
         var item = await _service.UpdateAsync(id, quantity);
@@ -54,6 +60,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpPut("{id:int:min(1)}/remove-quantity")]
+    [Authorize(Policy = "ManagerOrGestor")]
     public async Task<ActionResult<InventoryItemResponse>> RemoveInventoryItem(int id, decimal quantity)
     {
         var item = await _service.RemoveAsync(id, quantity);
@@ -61,6 +68,7 @@ public class InventoryItensController : ControllerBase
     }
 
     [HttpDelete("{id:int:min(1)}")]
+    [Authorize(Policy = "GestorOnly")]
     public async Task<ActionResult<InventoryItemResponse>> DeleteInventoryItemById(int id)
     {
         await _service.DeleteAsync(id);

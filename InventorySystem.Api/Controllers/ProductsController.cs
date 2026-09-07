@@ -21,14 +21,16 @@ namespace InventorySystem.Api.Controllers;
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "ManagerOrGestor")]
         public async Task<ActionResult<IEnumerable<ProductResponse>>> GetProducts()
         {
             var products = await _service.GetAllAsync();
             return Ok(products);
         }
 
+        
         [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
+        [Authorize(Policy = "ManagerOrGestor")]
         public async Task<ActionResult<ProductResponse>> GetProductById(int id)
         {
             var product = await _service.GetByIdAsync(id);
@@ -36,6 +38,7 @@ namespace InventorySystem.Api.Controllers;
         }
 
         [HttpPost]
+        [Authorize(Policy = "GestorOnly")]
         public async Task<ActionResult<ProductResponse>> PostProduct([FromBody] ProductRequest? request)
         {
             if (request is null)
@@ -46,8 +49,9 @@ namespace InventorySystem.Api.Controllers;
             var product =  await _service.CreateAsync(request);
             return Ok(product);
         }
-
+        
         [HttpDelete("{id:int:min(1)}")]
+        [Authorize(Policy = "GestorOnly")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
             await _service.DeleteAsync(id);
@@ -55,6 +59,7 @@ namespace InventorySystem.Api.Controllers;
         }
 
         [HttpPut("{id:int:min(1)}")]
+        [Authorize(Policy = "ManagerOrGestor")]
         public async Task<ActionResult<ProductResponse>> PutProduct(int id, string name)
         {
             var product = await _service.UpdateAsync(id, name);

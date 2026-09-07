@@ -33,6 +33,7 @@ public class AuthController : Controller
     }
     
     [HttpPost]
+    [Authorize(Policy = "GestorOnly")]
     [Route("CreateRole")]
     public async Task<IActionResult> CreateRole(string roleName)
     {
@@ -57,6 +58,7 @@ public class AuthController : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "GestorOnly")]
     [Route("AddUserToRole")]
     public async Task<IActionResult> AddUserToRole(string roleName, int registrationNumber)
     {
@@ -162,14 +164,17 @@ public class AuthController : Controller
         var result = await _userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            _logger.LogInformation(1, $"Error creating user: {errors}");
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new RegisterResponse { Success = false, Message = "User creation failed." });
         }
-        
+        _logger.LogInformation(1, $"User {user.UserName} created successfully");
         return Ok(new RegisterResponse { Success = true, Message = "User created successfully!" });
     }
 
     [HttpPost]
+    [Authorize(Policy = "GestorOnly")]
     [Route("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
@@ -211,8 +216,9 @@ public class AuthController : Controller
         });
     }
     
-    [Authorize]
+    
     [HttpPost]
+    [Authorize(Policy = "GestorOnly")]
     [Route("revoke")]
     public async Task<IActionResult> Revoke()
     {
