@@ -20,14 +20,65 @@ public class AuthController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthController> _logger;
 
     public AuthController(ITokenService tokenService, UserManager<ApplicationUser> userManager, 
-        RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        RoleManager<IdentityRole> roleManager, IConfiguration configuration,  ILogger<AuthController> logger)
     {
         _tokenService = tokenService;
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
+        _logger = logger;
+    }
+    
+    [HttpPost]
+    [Route("CreateRole")]
+    public async Task<IActionResult> CreateRole(string roleName)
+    {
+        var roleExists = await _roleManager.RoleExistsAsync(roleName);
+        if (roleExists)
+        {
+            return StatusCode(StatusCodes.Status400BadRequest,new RoleResponse { Success = false, 
+                Message = "Role already exists!" });
+        }
+        
+        var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+        if (!roleResult.Succeeded)
+        {
+            _logger.LogInformation(2, "Error creating role {RoleName}", roleName);
+            return StatusCode(StatusCodes.Status400BadRequest, new RoleResponse { Success = false, 
+                Message = "Role creation failed." });
+        }
+        
+        _logger.LogInformation(1, $"Role {roleName} created successfully");
+        return StatusCode(StatusCodes.Status200OK, new RoleResponse { Success = true, 
+            Message = "Role created successfully" });
+    }
+
+    [HttpPost]
+    [Route("AddUserToRole")]
+    public async Task<IActionResult> AddUserToRole(string roleName, int registrationNumber)
+    {
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.RegistrationNumber == registrationNumber);
+        
+        if (user is null)
+        {
+            return BadRequest(new { error = "Unable to find user" });
+        }
+        
+        var result = await _userManager.AddToRoleAsync(user, roleName);
+        if (!result.Succeeded)
+        {
+            _logger.LogInformation(1, $"Error: Unable to add user {user.UserName} to the {roleName} role");
+            return StatusCode(StatusCodes.Status400BadRequest, new RoleResponse { Success = false, 
+                Message = $"Error: Unable to add user {user.UserName} to the {roleName} role" });
+        }
+        
+        _logger.LogInformation(1, $"User {user.UserName} was added to the {roleName} role");
+        return StatusCode(StatusCodes.Status200OK, new RoleResponse { Success = true, 
+            Message = $"User {user.UserName} was added to the {roleName} role" });
     }
 
     [HttpPost]
@@ -186,4 +237,5 @@ public class AuthController : Controller
     
         return NoContent();
     }
+    
 }
