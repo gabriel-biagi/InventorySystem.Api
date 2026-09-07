@@ -174,7 +174,6 @@ public class AuthController : Controller
     }
 
     [HttpPost]
-    [Authorize(Policy = "GestorOnly")]
     [Route("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
