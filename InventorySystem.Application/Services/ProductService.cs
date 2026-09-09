@@ -5,6 +5,7 @@ using InventorySystem.Application.Services.Interfaces;
 using InventorySystem.Domain.Entities;
 using InventorySystem.Domain.Exception;
 using InventorySystem.Domain.Interfaces;
+using InventorySystem.Domain.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventorySystem.Application.Services;
@@ -22,12 +23,26 @@ public class ProductService : IProductService
         _inventoryItemService = inventoryItemService;
     }
     
-    public async Task<IEnumerable<ProductResponse>> GetAllAsync()
+    public async Task<PagedProductResponse> GetAllAsync(ProductParameters productParameters)
     {
-        var products = await _repository.GetAllAsync();
-        var productsDto =  _mapper.Map<IEnumerable<ProductResponse>>(products);
-        
-        return productsDto;
+        var products = await _repository.GetAllAsync(productParameters);
+        var productsDto = _mapper.Map<IEnumerable<ProductResponse>>(products);
+    
+        var metadata = new PageMetadata
+        {
+            TotalCount = products.TotalCount,
+            PageSize = products.PageSize,
+            CurrentPage = products.Currentpage,
+            TotalPages = products.TotalPages,
+            HasNext = products.HasNext,
+            HasPrevious = products.HasPrevious
+        };
+    
+        return new PagedProductResponse
+        {
+            Items = productsDto,
+            Metadata = metadata
+        };
     }
 
     public async Task<ProductResponse> GetByIdAsync(int id)
