@@ -1,12 +1,13 @@
 using InventorySystem.Application.DTOs.Request;
 using InventorySystem.Application.DTOs.Response;
 using InventorySystem.Domain.Entities;
+using InventorySystem.Domain.Pagination;
 
 namespace InventorySystem.Application.Services.Interfaces;
 
 public interface IInventoryItemService
 {
-    Task<IEnumerable<InventoryItemResponse>> GetAllAsync();
+    Task<PagedInventoryItemResponse> GetAllAsync(InventoryItemsParameters inventoryItemsParameters);
     Task<InventoryItemResponse> GetByIdAsync(int id);
     Task<IEnumerable<InventoryItemResponse>> GetItemsByProductIdAsync(int productId);
     Task <InventoryItemResponse> AddAsync(int productId, InventoryItemRequest request);

@@ -1,5 +1,6 @@
 using InventorySystem.Domain.Entities;
 using InventorySystem.Domain.Interfaces;
+using InventorySystem.Domain.Pagination;
 using InventorySystem.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +15,14 @@ public class EfInventoryRepository : IInventoryRepository
         _context = context;
     }
     
-    public async Task<IEnumerable<InventoryItem>> GetAllAsync()
+    public async Task<PagedList<InventoryItem>> GetAllAsync(InventoryItemsParameters inventoryItemsParameters)
     {
-        var itens = await _context.InventoryItems.Include(b => b.Product)
-            .ToListAsync();
-        return itens;
+        var itens = _context.InventoryItems
+            .Include(b => b.Product)
+            .OrderByDescending(b => b.InventoryItemId);
+        return await Task.FromResult(
+            PagedList<InventoryItem>.ToPagedList(itens, inventoryItemsParameters.PageNumber, inventoryItemsParameters.PageSize)
+        );
     }
 
     public async Task<InventoryItem?> GetByIdAsync(int id)

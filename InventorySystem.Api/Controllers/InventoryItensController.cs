@@ -2,8 +2,10 @@
 using InventorySystem.Application.DTOs.Request;
 using InventorySystem.Application.DTOs.Response;
 using InventorySystem.Application.Services.Interfaces;
+using InventorySystem.Domain.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace InventorySystem.Api.Controllers;
 
@@ -21,10 +23,11 @@ public class InventoryItensController : ControllerBase
 
     [HttpGet]
     [Authorize(Policy = "ManagerOrGestor")]
-    public async Task<ActionResult<IEnumerable<InventoryItemResponse>>> GetInventoryItems()
+    public async Task<ActionResult<IEnumerable<InventoryItemResponse>>> GetInventoryItems([FromQuery] InventoryItemsParameters inventoryItemsParameters)
     {
-        var items = await _service.GetAllAsync();
-        return Ok(items);
+        var pagedItems = await _service.GetAllAsync(inventoryItemsParameters);
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(pagedItems.Metadata));
+        return Ok(pagedItems.Items);
     }
 
     [HttpPost("{productId:int:min(1)}")]
